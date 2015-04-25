@@ -1,4 +1,4 @@
-package com.hesc.csdnblog.views;
+package com.hesc.csdnblog.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;

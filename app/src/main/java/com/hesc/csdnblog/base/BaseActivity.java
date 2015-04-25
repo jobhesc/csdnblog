@@ -1,15 +1,10 @@
 package com.hesc.csdnblog.base;
 
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.actionbar.ActionBarFacade;
 import com.hesc.csdnblog.actionbar.ActionBarFactory;
 import com.hesc.csdnblog.actionbar.ActionBarShowMode;

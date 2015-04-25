@@ -1,7 +1,6 @@
 package com.hesc.csdnblog.actionbar;
 
 import android.app.Activity;
-import android.content.Context;
 
 import com.hesc.csdnblog.R;
 
