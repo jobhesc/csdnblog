@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--圆角x方向半径-->
+    <attr name="roundRectRadiusX" format="dimension"/>
+    <!--圆角y方向半径-->
+    <attr name="roundRectRadiusY" format="dimension"/>
+    <!--是否显示遮盖View边框-->
+    <attr name="showMaskBorder" format="boolean"/>
+    <!--遮盖View边框宽度-->
+    <attr name="maskBorderWidth" format="dimension"/>
+    <!--遮盖View边框颜色-->
+    <attr name="maskBorderColor" format="color|reference"/>
+
+    <declare-styleable name="MaskImageView">
+        <attr name="showMaskBorder"/>
+        <attr name="maskBorderWidth"/>
+        <attr name="maskBorderColor"/>
+    </declare-styleable>
+
+    <declare-styleable name="RoundRectMaskImageView">
+        <attr name="roundRectRadiusX"/>
+        <attr name="roundRectRadiusY"/>
+    </declare-styleable>
+</resources>

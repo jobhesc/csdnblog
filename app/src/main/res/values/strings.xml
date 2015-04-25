@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CSDN专家博客</string>
+    <string name="refreshable_head_title">正在刷新...</string>
+    <string name="refreshable_head_update_time">更新时间:</string>
+    <string name="refreshable_foot_loading">加载中...</string>
+</resources>

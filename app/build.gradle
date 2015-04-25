@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
+retrolambda {
+    jdk getJava8HomeDir()//System.getenv("JAVA8_HOME")
+    oldJdk System.getenv("JAVA6_HOME")
+    javaVersion JavaVersion.VERSION_1_6
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "21.1.2"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId "com.hesc.csdnblog"
+        minSdkVersion 10
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs{
+        myConfig{
+            storeFile file('doc/csdnblog.jks')
+            storePassword 'csdnblog'
+            keyAlias 'csdnblog'
+            keyPassword 'csdnblog'
+        }
+    }
+
+    buildTypes {
+        debug{
+            signingConfig signingConfigs.myConfig
+        }
+        release {
+            signingConfig signingConfigs.myConfig
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:19.1.0'
+    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.jakewharton:butterknife:6.1.0'
+}
+
+
+def getJava8HomeDir() {
+    String envValue = System.getenv("JAVA8_HOME");
+    if (envValue != null) {
+        return envValue;
+    }
+
+    String rootDir = project.rootDir
+    File localProperties = new File(rootDir, "local.properties")
+    Properties properties = new Properties()
+    localProperties.withInputStream { instr ->
+        properties.load(instr)
+    }
+
+    return properties.getProperty('JAVA8_HOME')
+}
+
