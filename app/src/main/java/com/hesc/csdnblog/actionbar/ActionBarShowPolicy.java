@@ -36,9 +36,8 @@ public class ActionBarShowPolicy {
      *
      * @param layoutResID
      * @param showMode
-     * @throws ActionBarException
      */
-    public void setActionBarShowMode(int layoutResID, ActionBarShowMode showMode) throws ActionBarException {
+    public void setActionBarShowMode(int layoutResID, ActionBarShowMode showMode) {
         View contentView = mActivity.getLayoutInflater().inflate(layoutResID, null);
         setActionBarShowMode(contentView, showMode);
     }
@@ -48,9 +47,8 @@ public class ActionBarShowPolicy {
      *
      * @param contentView
      * @param showMode
-     * @throws ActionBarException
      */
-    public void setActionBarShowMode(View contentView, ActionBarShowMode showMode) throws ActionBarException {
+    public void setActionBarShowMode(View contentView, ActionBarShowMode showMode) {
         setActionBarShowMode(contentView, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -62,10 +60,9 @@ public class ActionBarShowPolicy {
      * @param contentView
      * @param layoutParams
      * @param showMode
-     * @throws ActionBarException
      */
     public void setActionBarShowMode(View contentView, ViewGroup.LayoutParams layoutParams,
-                                     ActionBarShowMode showMode) throws ActionBarException {
+                                     ActionBarShowMode showMode) {
         mShowMode = showMode;
         if (showMode == ActionBarShowMode.ACTIONBAR_EMBEDED) {
             mPresenter.showAsEmbedded(contentView, layoutParams);

@@ -1,5 +1,6 @@
 package com.hesc.csdnblog.actionbar;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.hesc.csdnblog.R;
 /**
  * Created by hesc on 15/4/24.
  */
+@TargetApi(11)
 class NormalPresenter extends BasePresenter {
 
     public NormalPresenter(Activity activity, IActionBar actionBar) {
@@ -24,7 +26,7 @@ class NormalPresenter extends BasePresenter {
 
     private void checkActivityIsNull() throws ActionBarException{
         if(getActivity() == null){
-            throw new ActionBarException("Activity不是ActionBarActivity的派生类异常");
+            throw new ActionBarException("Activity不能为空异常");
         }
     }
 
@@ -35,7 +37,7 @@ class NormalPresenter extends BasePresenter {
     }
 
     @Override
-    public void showAsEmbedded(View contentView, ViewGroup.LayoutParams layoutParams) throws ActionBarException {
+    public void showAsEmbedded(View contentView, ViewGroup.LayoutParams layoutParams)  {
         //校验
         checkActivityIsNull();
         //设置内容控件到Activity
@@ -55,7 +57,7 @@ class NormalPresenter extends BasePresenter {
     }
 
     @Override
-    public void showAsIndependent(View contentView, ViewGroup.LayoutParams layoutParams) throws ActionBarException {
+    public void showAsIndependent(View contentView, ViewGroup.LayoutParams layoutParams)  {
         //不显示系统标题栏
         getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
 

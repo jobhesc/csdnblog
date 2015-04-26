@@ -25,20 +25,20 @@ class CompatPresenter extends BasePresenter {
         return mActionBarActivity.getSupportActionBar();
     }
 
-    private void checkActivityIsNull() throws ActionBarException{
+    private void checkActivityIsNull() {
         if(mActionBarActivity == null){
             throw new ActionBarException("Activity不是ActionBarActivity的派生类异常");
         }
     }
 
-    private void checkActionBarIsNull() throws ActionBarException{
+    private void checkActionBarIsNull() {
         if(getSysActionBar() == null){
             throw new ActionBarException("ActionBar不能为空异常！");
         }
     }
 
     @Override
-    public void showAsEmbedded(View contentView, ViewGroup.LayoutParams layoutParams) throws ActionBarException {
+    public void showAsEmbedded(View contentView, ViewGroup.LayoutParams layoutParams)  {
         //校验
         checkActivityIsNull();
         //设置内容控件到Activity
@@ -58,7 +58,7 @@ class CompatPresenter extends BasePresenter {
     }
 
     @Override
-    public void showAsIndependent(View contentView, ViewGroup.LayoutParams layoutParams) throws ActionBarException {
+    public void showAsIndependent(View contentView, ViewGroup.LayoutParams layoutParams)  {
         //不显示系统标题栏
         mActionBarActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
