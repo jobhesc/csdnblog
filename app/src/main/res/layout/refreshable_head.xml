@@ -1,42 +1,45 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:orientation="horizontal"
-    android:weightSum="100">
+    android:clipChildren="false">
 
     <FrameLayout
-        android:layout_width="0dp"
-        android:layout_weight="40"
-        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="80dp"
+        android:layout_gravity="bottom">
         <ProgressBar android:id="@+id/refreshable_head_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center_vertical"
             style="?android:attr/progressBarStyleSmall"
             android:indeterminate="true"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
         <ImageView android:id="@+id/refreshable_head_arrow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            android:src="@drawable/pull_refresh_arrow"/>
     </FrameLayout>
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="60"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="100">
-
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
         <TextView android:id="@+id/refreshable_head_title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:gravity="center"
-            android:layout_weight="50"
+            android:textSize="12sp"
             android:text="@string/refreshable_head_title_pulling"/>
         <TextView android:id="@+id/refreshable_head_update_time"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:gravity="center"
-            android:layout_weight="50"
+            android:textSize="10sp"
             android:text="@string/refreshable_head_update_time"/>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

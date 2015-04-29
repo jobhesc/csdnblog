@@ -10,6 +10,10 @@
     <attr name="maskBorderWidth" format="dimension"/>
     <!--遮盖View边框颜色-->
     <attr name="maskBorderColor" format="color|reference"/>
+    <!--是否启用表头刷新视图-->
+    <attr name="headerViewEnabled" format="boolean"/>
+    <!--是否启用表尾加载更多视图-->
+    <attr name="footerViewEnabled" format="boolean"/>
 
     <declare-styleable name="MaskImageView">
         <attr name="showMaskBorder"/>
@@ -20,5 +24,10 @@
     <declare-styleable name="RoundRectMaskImageView">
         <attr name="roundRectRadiusX"/>
         <attr name="roundRectRadiusY"/>
+    </declare-styleable>
+
+    <declare-styleable name="RefreshableView">
+        <attr name="headerViewEnabled"/>
+        <attr name="footerViewEnabled"/>
     </declare-styleable>
 </resources>
