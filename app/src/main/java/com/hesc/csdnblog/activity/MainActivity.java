@@ -1,6 +1,9 @@
 package com.hesc.csdnblog.activity;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.hesc.csdnblog.R;
@@ -42,6 +45,13 @@ public class MainActivity extends BaseActivity{
                     e.printStackTrace();
                 }
                 return false;
+            }
+        });
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.e("demo", "test");
             }
         });
     }

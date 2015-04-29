@@ -14,7 +14,9 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -296,6 +298,33 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
 
             startLoadMore();
         }
+    }
+
+    @Override
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        super.setOnItemClickListener((parent, view, position, id)->{
+            if(getAdapter() instanceof HeaderViewListAdapter){
+                if(view == mHeadView) return;
+                if(view == mFootView) return;
+            }
+            if(listener != null){
+                listener.onItemClick(parent, view, position, id);
+            }
+        });
+    }
+
+    @Override
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        super.setOnItemLongClickListener((parent, view, position, id)->{
+            if(getAdapter() instanceof HeaderViewListAdapter){
+                if(view == mHeadView) return true;
+                if(view == mFootView) return true;
+            }
+            if(listener != null){
+                return listener.onItemLongClick(parent, view, position, id);
+            }
+            return false;
+        });
     }
 
     /**
