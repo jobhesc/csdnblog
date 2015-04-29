@@ -3,7 +3,7 @@ package com.hesc.csdnblog.actionbar;
 /**
  * Created by hesc on 15/4/24.
  */
-public class ActionBarException extends  Exception {
+public class ActionBarException extends  RuntimeException {
     public ActionBarException(){
         super();
     }

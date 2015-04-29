@@ -40,27 +40,15 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     public void setContentView(int layoutResID, ActionBarShowMode showMode){
-        try {
-            mActionBarFacade.getShowPolicy().setActionBarShowMode(layoutResID, showMode);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        mActionBarFacade.getShowPolicy().setActionBarShowMode(layoutResID, showMode);
     }
 
     public void setContentView(View view, ActionBarShowMode showMode){
-        try {
-            mActionBarFacade.getShowPolicy().setActionBarShowMode(view, showMode);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        mActionBarFacade.getShowPolicy().setActionBarShowMode(view, showMode);
     }
 
     public void setContentView(View view, ViewGroup.LayoutParams params, ActionBarShowMode showMode){
-        try {
-            mActionBarFacade.getShowPolicy().setActionBarShowMode(view, params, showMode);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        mActionBarFacade.getShowPolicy().setActionBarShowMode(view, params, showMode);
     }
 
     public ActionBarFacade getActionBarFacade(){
