@@ -1,13 +1,22 @@
 package com.hesc.csdnblog.data;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by hesc on 15/4/29.
  */
 @DatabaseTable(tableName = "blog_article")
-public class BlogArticle {
+public class BlogArticle extends BaseDaoEnabled {
+
+    BlogArticle(){}
+
+    BlogArticle(Dao dao){
+        super.setDao(dao);
+    }
+
     /**
      * ID字段
      */

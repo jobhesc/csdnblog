@@ -12,11 +12,11 @@ import java.sql.SQLException;
 /**
  * Created by hesc on 15/4/30.
  */
-public class BlogDataOpenHelper extends OrmLiteSqliteOpenHelper {
+class BlogOpenHelper extends OrmLiteSqliteOpenHelper {
     private static final String BLOG_DB_NAME="blog";
     private static final int BLOG_DB_VERSION = 1;
 
-    public BlogDataOpenHelper(Context context) {
+    public BlogOpenHelper(Context context) {
         super(context, BLOG_DB_NAME, null, BLOG_DB_VERSION);
     }
 

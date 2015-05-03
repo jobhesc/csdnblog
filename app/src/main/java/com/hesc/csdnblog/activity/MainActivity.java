@@ -1,16 +1,12 @@
 package com.hesc.csdnblog.activity;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.base.BaseActivity;
 import com.hesc.csdnblog.data.BlogArticle;
-import com.hesc.csdnblog.data.BlogDataProvider;
+import com.hesc.csdnblog.data.BlogProvider;
 import com.hesc.csdnblog.data.Blogger;
 import com.hesc.csdnblog.view.RefreshableView;
 
@@ -19,7 +15,7 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity{
     private RefreshableView mListView;
-    private BlogDataProvider mProvider;
+    private BlogProvider mProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +24,7 @@ public class MainActivity extends BaseActivity{
         //ActionBar只有标题栏
         getActionBarFacade().setOnlyTitleActionBar();
 
-        mProvider = new BlogDataProvider(this);
+        mProvider = new BlogProvider(this);
 
         Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(v->{
@@ -37,8 +33,6 @@ public class MainActivity extends BaseActivity{
             blogger.blogName = "我的博客3";
             blogger.commentCount = 2;
             blogger.reshipCount = 3;
-
-            mProvider.assign(blogger);
 
             BlogArticle article = new BlogArticle();
             article.title = "博客标题2";

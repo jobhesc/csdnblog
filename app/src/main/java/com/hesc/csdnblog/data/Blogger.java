@@ -1,12 +1,11 @@
 package com.hesc.csdnblog.data;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
-
-import java.util.List;
 
 /**
  * Created by hesc on 15/4/29.
@@ -14,6 +13,11 @@ import java.util.List;
  */
 @DatabaseTable(tableName = "blog_blogger")
 public class Blogger extends BaseDaoEnabled {
+
+    Blogger(Dao dao){
+        super.setDao(dao);
+    }
+
     /**
      * ID字段
      */
