@@ -8,6 +8,8 @@
     <string name="refreshable_head_title_loading">正在加载...</string>
     <string name="refreshable_head_update_time">更新时间:</string>
     <string name="refreshable_head_update_init">从未更新任何数据</string>
-    <string name="refreshable_foot_loading">加载中...</string>
+    <string name="refreshable_foot_title">上滑查看更多</string>
+    <string name="refreshable_foot_loading">正在加载...</string>
+    <string name="refreshable_foot_failure">数据加载错误，请重试</string>
 
 </resources>
