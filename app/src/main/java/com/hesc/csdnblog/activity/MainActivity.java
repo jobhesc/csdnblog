@@ -6,7 +6,7 @@ import android.widget.Button;
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.base.BaseActivity;
 import com.hesc.csdnblog.data.BlogArticle;
-import com.hesc.csdnblog.data.BlogProvider;
+import com.hesc.csdnblog.data.BlogDBUtils;
 import com.hesc.csdnblog.data.Blogger;
 import com.hesc.csdnblog.view.RefreshableView;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity{
     private RefreshableView mListView;
-    private BlogProvider mProvider;
+    private BlogDBUtils mProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class MainActivity extends BaseActivity{
         //ActionBar只有标题栏
         getActionBarFacade().setOnlyTitleActionBar();
 
-        mProvider = new BlogProvider(this);
+        mProvider = new BlogDBUtils(this);
 
         Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(v->{

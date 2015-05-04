@@ -26,15 +26,25 @@ public class Blogger extends BaseDaoEnabled {
     @DatabaseField(columnName = "id", generatedId = true)
     public long id;
     /**
+     * 博客ID
+     */
+    @DatabaseField(columnName = "blog_id", uniqueIndex = true)
+    public String blogID;
+    /**
      * 博客编码
      */
-    @DatabaseField(columnName = "blog_code", uniqueIndex = true)
+    @DatabaseField(columnName = "blog_code")
     public String blogCode;
     /**
      * 博客名称
      */
     @DatabaseField(columnName = "blog_name")
     public String blogName;
+    /**
+     * 博客描述
+     */
+    @DatabaseField(columnName = "blog_desc")
+    public String blogDesc;
     /**
      * 自定义的博客名称
      */
@@ -44,42 +54,52 @@ public class Blogger extends BaseDaoEnabled {
      * 博客访问次数
      */
     @DatabaseField(columnName = "visit_count")
-    public int visitCount;
+    public String visitCount;
     /**
      * 积分
      */
     @DatabaseField(columnName = "points")
-    public int points;
+    public String points;
+    /**
+     * 等级
+     */
+    @DatabaseField(columnName = "rank_url")
+    public String rankUrl;
     /**
      * 排名
      */
     @DatabaseField(columnName = "rank")
-    public int rank;
+    public String rank;
     /**
      * 原创文章数量
      */
     @DatabaseField(columnName = "original_count")
-    public int originalCount;
+    public String originalCount;
     /**
      * 转载文章数量
      */
     @DatabaseField(columnName = "reship_count")
-    public int reshipCount;
+    public String reshipCount;
     /**
      * 译文数量
      */
     @DatabaseField(columnName = "translation_count")
-    public int translationCount;
+    public String translationCount;
     /**
      * 评论数量
      */
     @DatabaseField(columnName = "comment_count")
-    public int commentCount;
+    public String commentCount;
     /**
      * 博客地址
      */
     @DatabaseField(columnName = "url")
     public String url;
+    /**
+     * 头像地址
+     */
+    @DatabaseField(columnName = "icon_url")
+    public String iconUrl;
     /**
      * 博客文章
      */
