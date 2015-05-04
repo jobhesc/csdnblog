@@ -13,6 +13,8 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable(tableName = "blog_blogger")
 public class Blogger extends BaseDaoEnabled {
+    //必须有一个无参数的构造函数，系统在构造实体表的时候会用到，否则会报错
+    Blogger(){}
 
     Blogger(Dao dao){
         super.setDao(dao);

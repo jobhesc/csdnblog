@@ -28,15 +28,15 @@ public class MainActivity extends BaseActivity{
 
         Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(v->{
-            Blogger blogger = new Blogger();
-            blogger.blogCode = "003";
-            blogger.blogName = "我的博客3";
+            Blogger blogger = mProvider.newBlogger();
+            blogger.blogCode = "004";
+            blogger.blogName = "我的博客4";
             blogger.commentCount = 2;
             blogger.reshipCount = 3;
 
-            BlogArticle article = new BlogArticle();
-            article.title = "博客标题2";
-            article.summary = "博客2简介";
+            BlogArticle article = mProvider.newBlogArticle(blogger);
+            article.title = "博客标题4";
+            article.summary = "博客4简介";
 
             blogger.articles.add(article);
 
@@ -45,8 +45,8 @@ public class MainActivity extends BaseActivity{
 
         Button button2 = (Button) findViewById(R.id.button2);
         button2.setOnClickListener(v->{
-            List<Blogger> bloggers = mProvider.queryBlogger();
-            List<BlogArticle> articles = mProvider.queryArticles();
+            List<Blogger> bloggers = mProvider.findAllBloggers();
+            List<BlogArticle> articles = mProvider.findAllArticles();
             System.out.print(bloggers.toString());
         });
     }
