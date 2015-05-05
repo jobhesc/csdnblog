@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.hesc.csdnblog.actionbar.ActionBarFacade;
 import com.hesc.csdnblog.actionbar.ActionBarFactory;
@@ -57,5 +58,9 @@ public class BaseActivity extends ActionBarActivity {
 
     public IActionBar createActionBar(){
         return ActionBarFactory.createCommonActionBar(this);
+    }
+
+    public void showToast(String message){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

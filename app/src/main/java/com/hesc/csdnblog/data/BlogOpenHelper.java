@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 class BlogOpenHelper extends OrmLiteSqliteOpenHelper {
     private static final String BLOG_DB_NAME="blog";
-    private static final int BLOG_DB_VERSION = 1;
+    private static final int BLOG_DB_VERSION = 2;
 
     public BlogOpenHelper(Context context) {
         super(context, BLOG_DB_NAME, null, BLOG_DB_VERSION);
@@ -34,6 +34,12 @@ class BlogOpenHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-
+        try {
+            TableUtils.dropTable(connectionSource, Blogger.class, true);
+            TableUtils.dropTable(connectionSource, BlogArticle.class, true);
+            onCreate(database, connectionSource);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }

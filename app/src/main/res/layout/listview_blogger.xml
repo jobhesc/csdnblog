@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:blog="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/gray_bg"
+    android:orientation="horizontal">
+
+    <com.hesc.csdnblog.view.CircleMaskImageView
+        android:id="@+id/listview_blogger_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:padding="10dp"
+        blog:showMaskBorder="true"
+        blog:maskBorderColor="@android:color/white"
+        blog:maskBorderWidth="1dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical">
+        <TextView android:id="@+id/listview_blogger_title"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="16sp"
+            android:text="标题"/>
+        <TextView android:id="@+id/listview_blogger_summay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="false"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="概要"/>
+    </LinearLayout>
+</LinearLayout>

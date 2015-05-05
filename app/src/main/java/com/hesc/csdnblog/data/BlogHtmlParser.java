@@ -17,7 +17,6 @@ import java.util.List;
  * Created by hesc on 15/5/4.
  */
 class BlogHtmlParser {
-    private static final String LOG_TAG=BlogHtmlParser.class.getName();
     //博客的基地址
     private static final String BLOG_BASEURL="http://blog.csdn.net/";
     //每一页的博客数
@@ -48,43 +47,39 @@ class BlogHtmlParser {
     /**
      * 校验文档的合法性
      */
-    private void checkDocValidate(){
+    private void checkDocValidate()throws Exception{
         if(mDocument == null){
-            throw new RuntimeException("mDocument为空异常！");
+            throw new Exception("mDocument为空异常！");
         }
 
         if(mDocument.getElementById("panel_Profile") == null){
-            throw new RuntimeException("url对应的地址不是csdn的博客地址");
+            throw new Exception("url对应的地址不是csdn的博客地址");
         }
     }
 
     /**
      * 执行解析html任务
      */
-    public void parse(){
-        if(mDocument != null) return;
+    public void parse() throws Exception{
+        mBlogger = null;
         if(TextUtils.isEmpty(mBlogID)){
-            throw new RuntimeException("博客ID不能为空！");
+            throw new Exception("博客ID不能为空！");
         }
 
-        try {
-            mDocument = Jsoup.connect(getBlogUrl()).get();
-            //校验文档的合法性
-            checkDocValidate();
-            //解析博主信息
-            parseBlogger();
-            //解析博客文章概述信息
-            parseArticleSummary();
-        } catch (IOException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-        }
+        mDocument = Jsoup.connect(getBlogUrl()).get();
+        //校验文档的合法性
+        checkDocValidate();
+        //解析博主信息
+        parseBlogger();
+        //解析博客文章概述信息
+        parseArticleSummary();
     }
 
     /**
      * 解析博客文章概述信息
      */
     private void parseArticleSummary(){
-        Element pageEle = mDocument.getElementById("pagelist");
+        Element pageEle = mDocument.getElementById("papelist");
         String pageInfo = pageEle.getElementsByTag("span").first().text();
         mArticleTotalCount = parseArticleTotalCount(pageInfo);
     }
@@ -103,8 +98,6 @@ class BlogHtmlParser {
      * 解析博主信息
      */
     private void parseBlogger(){
-        if(mBlogger != null) return;
-
         mBlogger = new Blogger();
         Element profileEle = mDocument.getElementById("panel_Profile");
         Element userfaceEle = profileEle.getElementById("blog_userface");
@@ -150,28 +143,23 @@ class BlogHtmlParser {
      * @param index
      * @return
      */
-    private BlogArticle parseArticle(int index) {
+    private BlogArticle parseArticle(int index) throws Exception{
         //计算index对应的文章在第几页
         int pageIndex = index/BLOG_PAGESIZE;
         int beginIndex = pageIndex*BLOG_PAGESIZE;
 
         //按照博客的一整页进行解析
         String pageUrl = getArticleUrl(pageIndex);
-        try {
-            Document articleDoc = Jsoup.connect(pageUrl).get();
-            Elements articleEles = articleDoc.getElementById("article_list").getElementsByClass("list_item article_item");
-            int count = articleEles.size();
-            BlogArticle article = null;
-            for(int i=0; i<count; i++){
-                //根据html元素解析博客文章,返回博客文章实体
-                article = parseArticle(articleEles.get(i));
-                mArticles.put(beginIndex+i, article);
-            }
-            return mArticles.get(index);
-        } catch(Exception e){
-            Log.e(LOG_TAG, e.getMessage(), e);
-            return null;
+        Document articleDoc = Jsoup.connect(pageUrl).get();
+        Elements articleEles = articleDoc.getElementById("article_list").getElementsByClass("list_item article_item");
+        int count = articleEles.size();
+        BlogArticle article = null;
+        for(int i=0; i<count; i++){
+            //根据html元素解析博客文章,返回博客文章实体
+            article = parseArticle(articleEles.get(i));
+            mArticles.put(beginIndex+i, article);
         }
+        return mArticles.get(index);
     }
 
     /**
@@ -242,14 +230,14 @@ class BlogHtmlParser {
      * @param endIndex
      * @return
      */
-    public List<BlogArticle> getArticles(int beginIndex, int endIndex){
+    public List<BlogArticle> getArticles(int beginIndex, int endIndex) throws Exception{
         if(beginIndex<0 || beginIndex>=mArticleTotalCount)
             throw new IndexOutOfBoundsException();
         if(endIndex<0 || endIndex>=mArticleTotalCount)
             throw new IndexOutOfBoundsException();
 
         if(beginIndex>endIndex)
-            throw new RuntimeException("endIndex小于beginIndex异常");
+            throw new Exception("endIndex小于beginIndex异常");
 
         List<BlogArticle> resultList = new ArrayList<BlogArticle>();
         BlogArticle article = null;

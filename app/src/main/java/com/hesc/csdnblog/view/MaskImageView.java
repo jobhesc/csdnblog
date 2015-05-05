@@ -36,7 +36,6 @@ public abstract class MaskImageView extends ImageView {
     private int maskBorderWidth = 10;
     //遮盖边框颜色
     private int maskBorderColor = Color.WHITE;
-    private boolean loadOnce = false;
 
     public MaskImageView(Context context){
         super(context);
@@ -56,27 +55,19 @@ public abstract class MaskImageView extends ImageView {
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-
-        if(!loadOnce){
-            //计算drawable的高度和宽度
-            calcDrawableSize();
-            //计算drawable的缩放矩阵
-            calcDrawableMatrix();
-            //设置画笔的渲染器
-            mPaint.setShader(createBitmapShader());
-            //设置遮盖边框画笔的颜色和宽度
-            mBorderPaint.setColor(maskBorderColor);
-            mBorderPaint.setStrokeWidth(maskBorderWidth);
-            mBorderPaint.setStyle(Paint.Style.STROKE);
-            loadOnce = true;
-        }
-    }
-
-    @Override
     protected void onDraw(Canvas canvas) {
         if(getDrawable() == null) return;
+        //计算drawable的高度和宽度
+        calcDrawableSize();
+        //计算drawable的缩放矩阵
+        calcDrawableMatrix();
+        //设置画笔的渲染器
+        mPaint.setShader(createBitmapShader());
+        //设置遮盖边框画笔的颜色和宽度
+        mBorderPaint.setColor(maskBorderColor);
+        mBorderPaint.setStrokeWidth(maskBorderWidth);
+        mBorderPaint.setStyle(Paint.Style.STROKE);
+
         drawMask(canvas, mPaint);
         if(showMaskBorder)
             drawMaskBorder(canvas, mBorderPaint);

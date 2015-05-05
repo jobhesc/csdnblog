@@ -1,6 +1,7 @@
 package com.hesc.csdnblog.data;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -82,6 +83,14 @@ class BlogDBHelper {
     }
 
     /**
+     * 当数据库没有该记录时插入博主信息，否则更新
+     * @param blogger
+     */
+    public void insertOrUpdateBlogger(Blogger blogger){
+        mRuntimeBloggerDAO.createOrUpdate(blogger);
+    }
+
+    /**
      * 批量插入博主信息
      * @param bloggers
      */
@@ -160,6 +169,14 @@ class BlogDBHelper {
     }
 
     /**
+     * 当数据库没有该记录时插入博客文章，否则更新
+     * @param article
+     */
+    public void insertOrUpdateArticle(BlogArticle article){
+        mRuntimeBlogArticleDAO.createOrUpdate(article);
+    }
+
+    /**
      * 批量插入博客文章
      * @param articles
      */
@@ -169,7 +186,7 @@ class BlogDBHelper {
         mRuntimeBlogArticleDAO.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for(BlogArticle article: articles){
+                for (BlogArticle article : articles) {
                     mRuntimeBlogArticleDAO.create(article);
                 }
                 return null;
@@ -195,7 +212,7 @@ class BlogDBHelper {
         mRuntimeBlogArticleDAO.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for(BlogArticle article: articles){
+                for (BlogArticle article : articles) {
                     mRuntimeBlogArticleDAO.update(article);
                 }
                 return null;
@@ -221,7 +238,7 @@ class BlogDBHelper {
         mRuntimeBlogArticleDAO.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for(BlogArticle article: articles){
+                for (BlogArticle article : articles) {
                     mRuntimeBlogArticleDAO.delete(article);
                 }
                 return null;
@@ -243,6 +260,17 @@ class BlogDBHelper {
      */
     public List<Blogger> findAllBloggers(){
         return mRuntimeBloggerDAO.queryForAll();
+    }
+
+    /**
+     * 根据博客ID查找博主信息
+     * @param blogID
+     * @return
+     */
+    public Blogger findBlogger(String blogID){
+        if(TextUtils.isEmpty(blogID)) return null;
+        List<Blogger> bloggers = mRuntimeBloggerDAO.queryForEq("blog_id", blogID);
+        return (bloggers == null || bloggers.size() == 0?null:bloggers.get(0));
     }
 
     /**
