@@ -1,6 +1,7 @@
 package com.hesc.csdnblog.base;
 
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,4 +64,25 @@ public abstract class BaseListAdapter extends BaseAdapter {
      * @return
      */
     protected abstract View createView(int position);
+
+    /**
+     * 根据资源ID查找视图，添加了holder功能，可以放心使用
+     * @param containView
+     * @param resId
+     * @param <T>
+     * @return
+     */
+    protected <T> T findView(View containView, int resId){
+        if(containView.getTag() == null){
+            containView.setTag(new SparseArray<View>());
+        }
+
+        SparseArray<View> viewHolder = (SparseArray<View>)containView.getTag();
+        View resultView = viewHolder.get(resId);
+        if(resultView == null){
+            resultView = containView.findViewById(resId);
+            viewHolder.put(resId, resultView);
+        }
+        return (T)resultView;
+    }
 }

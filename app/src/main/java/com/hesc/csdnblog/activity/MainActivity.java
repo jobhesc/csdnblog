@@ -33,5 +33,7 @@ public class MainActivity extends BaseActivity{
         mAdapter.loadBlogger("lmj623565791");
         mAdapter.loadBlogger("u013357243");
         mAdapter.loadBlogger("huangyanan1989");
+
+//        mListView.setOnItemClickListener();
     }
 }
