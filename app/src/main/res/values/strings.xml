@@ -11,5 +11,9 @@
     <string name="refreshable_foot_title">上滑查看更多</string>
     <string name="refreshable_foot_loading">正在加载...</string>
     <string name="refreshable_foot_failure">数据加载错误，请重试</string>
+    <string name="title_activity_blog">BlogActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

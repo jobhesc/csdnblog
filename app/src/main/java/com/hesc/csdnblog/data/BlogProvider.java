@@ -1,6 +1,7 @@
 package com.hesc.csdnblog.data;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -35,30 +36,29 @@ public class BlogProvider {
     }
 
     /**
-     * 根据博客ID装载博主信息
-     * @param blogID
-     * @return
-     */
-    public Observable<Blogger> loadBlogger(String blogID){
-        return loadBloggerFromDB(blogID).flatMap(blogger -> loadBloggerFromNet(blogger));
-    }
-
-    /**
-     * 装载所有的博主信息
-     * @return
-     */
-    public Observable<List<Blogger>> loadAllBloggers(){
-        return loadAllBloggerFromDB().flatMap(bloggers -> loadBloggersFromNet(bloggers));
-    }
-
-    /**
-     * 从网络装载博客ID对应的博主信息
+     * 从网络装载博主对应的所有博客文章
      * @param blogger
      * @return
      */
-    private Observable<Blogger> loadBloggerFromNet(Blogger blogger){
+    public Observable<List<BlogArticle>> loadArticlesFromNet(Blogger blogger){
         return Observable.create(subscriber -> {
-            Runnable runnable = getLoadBloggerFromNet(subscriber, blogger);
+            Runnable runnable = getArticlesFromNet(subscriber, blogger);
+            FutureTask<Void> task = new FutureTask<Void>(runnable, null);
+            subscriber.add(Subscriptions.from(task));
+            httpExecutor.execute(task);
+        });
+    }
+
+
+
+    /**
+     * 从网络装载博客ID对应的博主信息
+     * @param blogID
+     * @return
+     */
+    public Observable<Blogger> loadBloggerFromNet(String blogID){
+        return Observable.create(subscriber -> {
+            Runnable runnable = getLoadBloggerFromNet(subscriber, blogID);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
             subscriber.add(Subscriptions.from(task));
             httpExecutor.execute(task);
@@ -69,7 +69,7 @@ public class BlogProvider {
      * 从数据库装载博客ID对应的博主信息
      * @return
      */
-    private Observable<Blogger> loadBloggerFromDB(String blogID){
+    public Observable<Blogger> loadBloggerFromDB(String blogID){
         return Observable.create(subscriber -> {
             Runnable runnable = getLoadBloggerFromDB(subscriber, blogID);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
@@ -83,7 +83,7 @@ public class BlogProvider {
      * @param bloggers
      * @return
      */
-    private Observable<List<Blogger>> loadBloggersFromNet(List<Blogger> bloggers){
+    public Observable<List<Blogger>> loadBloggersFromNet(List<Blogger> bloggers){
         return Observable.create(subscriber -> {
             Runnable runnable = getLoadBloggersFromNet(subscriber, bloggers);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
@@ -96,7 +96,7 @@ public class BlogProvider {
      * 从数据库装载所有博主信息
      * @return
      */
-    private Observable<List<Blogger>> loadAllBloggerFromDB(){
+    public Observable<List<Blogger>> loadAllBloggerFromDB(){
         return Observable.create(subscriber -> {
             Runnable runnable = getLoadBloggersFromDB(subscriber);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
@@ -119,33 +119,6 @@ public class BlogProvider {
         return htmlParser;
     }
 
-
-    /**
-     * 从网络上加载，更新博主信息
-     * @param srcBlogger
-     * @return
-     */
-    private Blogger updateBlogger(Blogger srcBlogger){
-        if(srcBlogger == null) return null;
-        try {
-            //网络加载网页，调用html解析器进行解析
-            BlogHtmlParser htmlParser = getHtmlParser(srcBlogger.blogID);
-            htmlParser.parse();
-            Blogger dstBlogger = htmlParser.getBlogger();
-
-            if (dstBlogger != null) {
-                //id
-                dstBlogger.id = srcBlogger.id;
-                //博客文章
-                dstBlogger.articles = srcBlogger.articles;
-            }
-            return dstBlogger;
-        } catch(Exception e){
-            Log.e(LOG_TAG, e.getMessage(), e);
-            return null;
-        }
-    }
-
     /**
      * 从网络加载所有博主信息的代码执行段
      * @param subscriber
@@ -164,8 +137,8 @@ public class BlogProvider {
                     Blogger dstBlogger = null;
                     for (Blogger srcBlogger : bloggers) {
                         //从网络更新博主信息
-                        dstBlogger = updateBlogger(srcBlogger);
-                        results.add(dstBlogger==null?srcBlogger:dstBlogger);
+                        dstBlogger = getHtmlParser(srcBlogger.blogID).parseBlogger();
+                        results.add(dstBlogger);
                     }
                 }
                 //保存最新的博主信息到数据库
@@ -201,25 +174,59 @@ public class BlogProvider {
     }
 
     /**
-     * 从网络加载所有博主信息的代码执行段
+     * 从网络加载指定博主的所有博客文章的代码执行段
      * @param subscriber
-     * @param srcBlogger
+     * @param blogger
      * @return
      */
-    private Runnable getLoadBloggerFromNet(final Subscriber<? super Blogger> subscriber, Blogger srcBlogger){
+    private Runnable getArticlesFromNet(final Subscriber<? super List<BlogArticle>> subscriber, Blogger blogger){
+        return ()->{
+            try {
+                if (subscriber.isUnsubscribed()) {
+                    return;
+                }
+                //从网络更新博客文章信息
+                List<BlogArticle> articles = getHtmlParser(blogger.blogID).parseArticles();
+                if(articles == null)
+                    articles = new ArrayList<>();
+                for(BlogArticle article: articles){
+                    article.blogger = blogger;
+                }
+
+                //删除原数据库中所有该博主对应的文章
+                List<BlogArticle> oldArticles = mDBHelper.findArticles(blogger);
+                mDBHelper.deleteArticles(oldArticles);
+                //保存最新的博客文章信息到数据库
+                mDBHelper.updateArticles(articles);
+
+                subscriber.onNext(articles);
+                subscriber.onCompleted();
+            } catch(Exception e){
+                subscriber.onError(e);
+            }
+        };
+    }
+
+    /**
+     * 从网络加载所有博主信息的代码执行段
+     * @param subscriber
+     * @param blogID
+     * @return
+     */
+    private Runnable getLoadBloggerFromNet(final Subscriber<? super Blogger> subscriber, String blogID){
         return ()->{
             try {
                 if (subscriber.isUnsubscribed()) {
                     return;
                 }
                 //从网络更新博主信息
-                Blogger dstBlogger = updateBlogger(srcBlogger);
+                Blogger blogger = getHtmlParser(blogID).parseBlogger();
                 //保存最新的博主信息到数据库
-                if(dstBlogger != null){
-                    mDBHelper.insertOrUpdateBlogger(dstBlogger);
+                if(blogger != null){
+                    mDBHelper.insertBlogger(blogger);
                 }
 
-                subscriber.onNext(dstBlogger == null?srcBlogger:dstBlogger);
+                subscriber.onNext(blogger);
                 subscriber.onCompleted();
             } catch(Exception e){
                 subscriber.onError(e);
@@ -241,10 +248,6 @@ public class BlogProvider {
                 }
                 //从数据库查询博客ID对应的博主信息
                 Blogger blogger = mDBHelper.findBlogger(bloggID);
-                if(blogger == null){
-                    blogger = new Blogger();
-                    blogger.blogID = bloggID;
-                }
                 subscriber.onNext(blogger);
                 subscriber.onCompleted();
             } catch (Exception e) {

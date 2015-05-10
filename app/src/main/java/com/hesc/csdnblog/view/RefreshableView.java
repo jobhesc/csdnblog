@@ -52,12 +52,14 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     private Handler mHandler;
     //滚动监听
     private OnScrollListener mOnScrollListener;
-    //是否可以装载更多
-    private boolean mCanLoadMore =false;
     //是否启用表头下拉视图
-    private boolean mHeaderViewEnabled = true;
+    private boolean mHeaderViewEnabled = false;
     //是否启用表尾加载更多视图
-    private boolean mFooterViewEnabled = true;
+    private boolean mFooterViewEnabled = false;
+    //是否正在刷新数据
+    private boolean isRefreshing = false;
+    //是否正在加载更多
+    private boolean isloadingMore = false;
 
     public RefreshableView(Context context){
         super(context);
@@ -78,8 +80,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
 
     private void initAttrs(AttributeSet attrs){
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.RefreshableView);
-        mHeaderViewEnabled = a.getBoolean(R.styleable.RefreshableView_headerViewEnabled, true);
-        mFooterViewEnabled = a.getBoolean(R.styleable.RefreshableView_footerViewEnabled, true);
+        setHeaderViewEnabled(a.getBoolean(R.styleable.RefreshableView_headerViewEnabled, false));
+        setFooterViewEnabled(a.getBoolean(R.styleable.RefreshableView_footerViewEnabled, false));
         a.recycle();
     }
 
@@ -136,8 +138,7 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         mFootView = new RefreshFootView(getContext());
         mHeadView.updateViews(mHeadState);
         mFootView.updateViews(mFootState);
-        addHeaderView(mHeadView);
-        addFooterView(mFootView);
+
         //创建滚动控制类实例，使用减速插值程序（动画从开始到结束,变化率是一个减速的过程）
         mScroller = new Scroller(getContext(), new DecelerateInterpolator());
         //handler
@@ -167,11 +168,6 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                 float delta = (ev.getY()-mTouchPointY)/3;
                 mTouchPointY = ev.getY();
 
-                if(delta<0){
-                    //滑动屏幕才允许装载更多
-                    mCanLoadMore = true;
-                }
-
                 //没有启用表头刷新视图，不处理
                 if(!mHeaderViewEnabled) break;
                 //如果不是向下拉，不处理
@@ -181,12 +177,14 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                 //修改表头的可见高度
                 mHeadView.setVisibleHeight((int)(mHeadView.getVisibleHeight()+delta));
 
-                if(mHeadView.isReachLoadHeight()){  //如果超过需要装载数据的界限
-                    mHeadState = HeadRefreshState.NEEDLOAD;
-                } else {
-                    mHeadState = HeadRefreshState.NONLOAD;
+                if(!isRefreshing) {
+                    if (mHeadView.isReachLoadHeight()) {  //如果超过需要装载数据的界限
+                        mHeadState = HeadRefreshState.NEEDLOAD;
+                    } else {
+                        mHeadState = HeadRefreshState.NONLOAD;
+                    }
+                    mHeadView.updateViews(mHeadState);
                 }
-                mHeadView.updateViews(mHeadState);
                 break;
             case MotionEvent.ACTION_UP:
                 if(getFirstVisiblePosition() != 0) break;
@@ -198,6 +196,11 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                     mHeadState = HeadRefreshState.INIT;
                 } else if(mHeadState == HeadRefreshState.NEEDLOAD){  //需要装载数据
                     startRefresh();
+                    //设置滚动回退到需要装载界限上
+                    resetHeaderHeight(true);
+                } else if(mHeadState == HeadRefreshState.LOADING) { //正在装载
+                    //设置滚动回退到需要装载界限上
+                    resetHeaderHeight(true);
                 }
                 break;
         }
@@ -206,43 +209,74 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     }
 
     /**
+     * 停止刷新数据
+     */
+    public void stopRefresh(boolean isSuccessful){
+        //没有启用表头刷新视图，不处理
+        if(!mHeaderViewEnabled) return;
+        if(!isRefreshing) return;
+        if(isSuccessful)
+            mHeadView.storeCurrUpdateTime();
+        resetHeaderHeight(false);
+        //设置界面为初始状态
+        mHeadState = HeadRefreshState.INIT;
+        mHeadView.updateViews(mHeadState);
+        isRefreshing = false;
+    }
+
+    /**
+     * 停止加载更多
+     */
+    public void stopLoadMore(boolean isSuccessful){
+        //没有启用底部加载更多，不处理
+        if(!mFooterViewEnabled) return;
+        if(!isloadingMore) return;
+        if(isSuccessful)
+            mFootState = FootRefreshState.INIT;
+        else
+            mFootState = FootRefreshState.FAILURE;  //加载失败
+        mFootView.updateViews(mFootState);
+        isloadingMore = false;
+    }
+
+    /**
      * 开始进行刷新数据操作
      */
     public void startRefresh(){
         //没有启用表头刷新视图，不处理
         if(!mHeaderViewEnabled) return;
+        //正在刷新数据，不处理
+        if(isRefreshing) return;
         //设置界面为数据装载状态
         mHeadState = HeadRefreshState.LOADING;
         mHeadView.updateViews(mHeadState);
 
-        mHandler.postDelayed(()->{
+        isRefreshing=true;
+        mHandler.postDelayed(() -> {
             //刷新数据成功，保存更新数据时间
-            if(mRefreshListener != null && mRefreshListener.onRefresh()){
-                mHeadView.storeCurrUpdateTime();
+            if (mRefreshListener != null){
+                mRefreshListener.onRefresh();
             }
-            resetHeaderHeight(false);
-            //设置界面为初始状态
-            mHeadState = HeadRefreshState.INIT;
-            mHeadView.updateViews(mHeadState);
+
         },300);
-        //设置滚动回退到需要装载界限上
-        resetHeaderHeight(true);
     }
 
     /**
      * 装载更多
      */
     public void startLoadMore(){
+        //没有启用底部加载更多，不处理
         if(!mFooterViewEnabled) return;
-        mCanLoadMore = false;
+        //正在加载更多，不处理
+        if(isloadingMore) return;
+
+        isloadingMore=true;
         mFootState = FootRefreshState.LOADING;
         mFootView.updateViews(mFootState);
-        mHandler.postDelayed(()->{
-            mFootState = FootRefreshState.INIT;
-            if(mRefreshListener != null && !mRefreshListener.onLoadMore()){
-                mFootState = FootRefreshState.FAILURE;  //加载失败
+        mHandler.postDelayed(() -> {
+            if (mRefreshListener != null) {
+                mRefreshListener.onLoadMore();
             }
-            mFootView.updateViews(mFootState);
         }, 300);
     }
 
@@ -293,9 +327,6 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         }
 
         if(firstVisibleItem + visibleItemCount>=totalItemCount){
-            //已经在加载更多，不允许再次加载，防止多次加载
-            if(!mCanLoadMore) return;
-
             startLoadMore();
         }
     }
@@ -370,8 +401,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
      * 数据刷新侦听接口
      */
     public interface OnRefreshListener{
-        boolean onRefresh();
-        boolean onLoadMore();
+        void onRefresh();
+        void onLoadMore();
     }
 
     /**

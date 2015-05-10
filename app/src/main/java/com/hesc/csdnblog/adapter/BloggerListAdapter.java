@@ -39,41 +39,95 @@ public class BloggerListAdapter extends BaseListAdapter {
     }
 
     /**
-     * 装载指定博客ID的博主信息
+     * 从网络装载指定博客ID的博主信息
      * @param blogID
      */
-    public void loadBlogger(String blogID){
-        mProvider.loadBlogger(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                r->{
-                    if(r!=null) {
+    public void loadBloggerFromNet(String blogID,DataloadCallback callback){
+        safeSubscription(mProvider.loadBloggerFromNet(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                r -> {
+                    if (r != null) {
                         mBloggers.add(r);
                         sortBloggers();
                         notifyDataSetChanged();
                     }
+                    if(callback != null)
+                        callback.dataLoaded();
                 },
-                e->{
+                e -> {
                     showError(e);
+                    if(callback != null)
+                        callback.dataLoadFail();
                 }
-        );
+        ));
     }
 
     /**
-     * 装载所有博主信息数据
+     * 从数据库装载指定博客ID的博主信息
+     * @param blogID
      */
-    public void loadAllBloggers(){
-        mProvider.loadAllBloggers().observeOn(AndroidSchedulers.mainThread()).subscribe(
-                r->{
+    public void loadBloggerFromDB(String blogID,DataloadCallback callback){
+        safeSubscription(mProvider.loadBloggerFromDB(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                r -> {
+                    if (r != null) {
+                        mBloggers.add(r);
+                        sortBloggers();
+                        notifyDataSetChanged();
+                    }
+                    if(callback != null)
+                        callback.dataLoaded();
+                },
+                e -> {
+                    showError(e);
+                    if(callback != null)
+                        callback.dataLoadFail();
+                }
+        ));
+    }
+
+    /**
+     * 从网络装载所有博主信息数据
+     */
+    public void loadAllBloggersFromNet(DataloadCallback callback){
+        safeSubscription(mProvider.loadBloggersFromNet(mBloggers).observeOn(AndroidSchedulers.mainThread()).subscribe(
+                r -> {
                     mBloggers.clear();
-                    if(r!=null) {
+                    if (r != null) {
                         mBloggers.addAll(r);
                         sortBloggers();
                         notifyDataSetChanged();
                     }
+                    if(callback != null)
+                        callback.dataLoaded();
                 },
-                e->{
+                e -> {
                     showError(e);
+                    if(callback != null)
+                        callback.dataLoadFail();
                 }
-        );
+        ));
+    }
+
+    /**
+     * 从数据库装载所有博主信息数据
+     */
+    public void loadAllBloggersFromDB(DataloadCallback callback){
+        safeSubscription(mProvider.loadAllBloggerFromDB().observeOn(AndroidSchedulers.mainThread()).subscribe(
+                r -> {
+                    mBloggers.clear();
+                    if (r != null) {
+                        mBloggers.addAll(r);
+                        sortBloggers();
+                        notifyDataSetChanged();
+                    }
+                    if(callback != null)
+                        callback.dataLoaded();
+                },
+                e -> {
+                    showError(e);
+                    if(callback != null)
+                        callback.dataLoadFail();
+                }
+        ));
     }
 
     @Override

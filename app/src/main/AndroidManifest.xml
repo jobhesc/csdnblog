@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hesc.csdnblog" >
-    <!--申请网络权限-->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!--申请写入SD卡权限-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    
+
+    <!-- 申请网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 申请写入SD卡权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:name=".application.MyApplication"
         android:allowBackup="true"
@@ -15,11 +16,16 @@
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.BlogActivity"
+            android:label="@string/title_activity_blog" >
         </activity>
     </application>
 

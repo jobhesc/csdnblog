@@ -5,9 +5,9 @@
     android:orientation="vertical">
 
     <com.hesc.csdnblog.view.RefreshableView
-        android:id="@+id/main_blogger"
+        android:id="@+id/blog_article"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         blog:headerViewEnabled="true"
-        blog:footerViewEnabled="false"/>
+        blog:footerViewEnabled="true"/>
 </LinearLayout>

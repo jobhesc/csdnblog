@@ -11,6 +11,11 @@ import com.hesc.csdnblog.actionbar.ActionBarFactory;
 import com.hesc.csdnblog.actionbar.ActionBarShowMode;
 import com.hesc.csdnblog.actionbar.IActionBar;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import rx.Subscription;
+
 
 public class BaseActivity extends ActionBarActivity {
     /**
@@ -18,6 +23,7 @@ public class BaseActivity extends ActionBarActivity {
      */
     private static final ActionBarShowMode ACTIONBAR_DEFAULT_SHOWMODE=ActionBarShowMode.ACTIONBAR_EMBEDED;
     private ActionBarFacade mActionBarFacade;
+    private List<Subscription> subscriptionList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,5 +68,30 @@ public class BaseActivity extends ActionBarActivity {
 
     public void showToast(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 对订阅者进行安全回收，防止出现activity已经销毁而订阅者仍然在等待消息的情况
+     * @param subscription
+     */
+    public void safeSubscription(Subscription subscription){
+        subscriptionList.add(subscription);
+    }
+
+    /**
+     * 取消所有订阅者的观察行为
+     */
+    public void unsubscribeAll(){
+        if(subscriptionList.size()>0){
+            for(Subscription subscription: subscriptionList)
+                subscription.unsubscribe();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //取消所有订阅者的观察行为
+        unsubscribeAll();
+        super.onDestroy();
     }
 }

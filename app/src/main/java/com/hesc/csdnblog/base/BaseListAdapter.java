@@ -9,6 +9,8 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import rx.Subscription;
+
 /**
  * Created by hesc on 15/5/5.
  */
@@ -84,5 +86,13 @@ public abstract class BaseListAdapter extends BaseAdapter {
             viewHolder.put(resId, resultView);
         }
         return (T)resultView;
+    }
+
+    /**
+     * 对订阅者进行安全回收
+     * @param subscription
+     */
+    public void safeSubscription(Subscription subscription){
+        mActivity.safeSubscription(subscription);
     }
 }

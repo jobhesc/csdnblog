@@ -19,18 +19,10 @@ import java.util.List;
 class BlogHtmlParser {
     //博客的基地址
     private static final String BLOG_BASEURL="http://blog.csdn.net/";
-    //每一页的博客数
-    private static final int BLOG_PAGESIZE = 25;
     //博客ID
     private String mBlogID = null;
-    //博主信息
-    private Blogger mBlogger = null;
     //文档
     private Document mDocument = null;
-    //博客文章信息
-    private SparseArray<BlogArticle> mArticles = new SparseArray<BlogArticle>();
-    //博客文章总数量
-    private int mArticleTotalCount = 0;
 
     public BlogHtmlParser(String blogID){
         mBlogID = blogID;
@@ -58,108 +50,111 @@ class BlogHtmlParser {
     }
 
     /**
-     * 执行解析html任务
-     */
-    public void parse() throws Exception{
-        mBlogger = null;
-        if(TextUtils.isEmpty(mBlogID)){
-            throw new Exception("博客ID不能为空！");
-        }
-
-        mDocument = Jsoup.connect(getBlogUrl()).get();
-        //校验文档的合法性
-        checkDocValidate();
-        //解析博主信息
-        parseBlogger();
-        //解析博客文章概述信息
-        parseArticleSummary();
-    }
-
-    /**
-     * 解析博客文章概述信息
-     */
-    private void parseArticleSummary(){
-        Element pageEle = mDocument.getElementById("papelist");
-        String pageInfo = pageEle.getElementsByTag("span").first().text();
-        mArticleTotalCount = parseArticleTotalCount(pageInfo);
-    }
-
-    /**
-     * 解析博客文章总数
+     * 解析博客文章页数
      * @param pageInfo
      * @return
      */
-    private int parseArticleTotalCount(String pageInfo){
-        int index = pageInfo.indexOf("条");
-        return Integer.parseInt(pageInfo.substring(0, index));
+    private int parseArticlePageCount(String pageInfo){
+        int startIndex = pageInfo.indexOf("共");
+        int endIndex = pageInfo.indexOf("页");
+        return Integer.parseInt(pageInfo.substring(startIndex+1, endIndex));
+    }
+
+    /**
+     * 获取博客的DOM
+     * @throws Exception
+     */
+    private void obtainDocument() throws Exception{
+        if(mDocument == null){
+            if(TextUtils.isEmpty(mBlogID)){
+                throw new Exception("博客ID不能为空！");
+            }
+
+            mDocument = Jsoup.connect(getBlogUrl()).get();
+            //校验文档的合法性
+            checkDocValidate();
+        }
+    }
+
+    /**
+     * 解析博客文章
+     * @return
+     * @throws Exception
+     */
+    public List<BlogArticle> parseArticles() throws Exception {
+        //获取博客的DOM
+        obtainDocument();
+
+        List<BlogArticle> articles = new ArrayList<>();
+        //获取博客文章页码数
+        Element pageEle = mDocument.getElementById("papelist");
+        String pageInfo = pageEle.getElementsByTag("span").first().text();
+        int pageCount = parseArticlePageCount(pageInfo);
+        if(pageCount == 0) return articles;
+
+        for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
+            String pageUrl = getArticleUrl(pageIndex);
+            Document articleDoc = Jsoup.connect(pageUrl).get();
+            Elements articleEles = articleDoc.getElementById("article_list").getElementsByClass("list_item article_item");
+
+            int count = articleEles.size();
+            BlogArticle article = null;
+            for (int i = 0; i < count; i++) {
+                //根据html元素解析博客文章,返回博客文章实体
+                article = parseArticle(articleEles.get(i));
+                articles.add(article);
+            }
+        }
+        return articles;
     }
 
     /**
      * 解析博主信息
      */
-    private void parseBlogger(){
-        mBlogger = new Blogger();
+    public Blogger parseBlogger() throws Exception{
+        //获取博客的DOM
+        obtainDocument();
+
+        Blogger blogger = new Blogger();
         Element profileEle = mDocument.getElementById("panel_Profile");
         Element userfaceEle = profileEle.getElementById("blog_userface");
         //博客编号
-        mBlogger.blogCode = userfaceEle.getElementsByClass("user_name").first().text();
+        blogger.blogCode = userfaceEle.getElementsByClass("user_name").first().text();
         //博客头像地址
-        mBlogger.iconUrl = userfaceEle.getElementsByTag("img").first().attr("src");
+        blogger.iconUrl = userfaceEle.getElementsByTag("img").first().attr("src");
 
         //博客名称
         Element titleEle = mDocument.getElementById("blog_title");
-        mBlogger.blogName = titleEle.getElementsByTag("h2").select("a[href]").first().text();
-        mBlogger.customName = mBlogger.blogName;
+        blogger.blogName = titleEle.getElementsByTag("h2").select("a[href]").first().text();
+        blogger.customName = blogger.blogName;
         //博客描述
-        mBlogger.blogDesc = titleEle.getElementsByTag("h3").first().text();
+        blogger.blogDesc = titleEle.getElementsByTag("h3").first().text();
 
         Elements rankEles = mDocument.getElementById("blog_rank").select("li>span");
         //博客访问次数
-        mBlogger.visitCount = rankEles.get(0).text();
+        blogger.visitCount = rankEles.get(0).text();
         //积分
-        mBlogger.points = rankEles.get(1).text();
+        blogger.points = rankEles.get(1).text();
         //等级
-        mBlogger.rankUrl = rankEles.get(2).getElementsByTag("img").first().attr("src");
+        blogger.rankUrl = rankEles.get(2).getElementsByTag("img").first().attr("src");
         //排名
-        mBlogger.rank = rankEles.get(3).text();
+        blogger.rank = rankEles.get(3).text();
 
         Elements statEles = mDocument.getElementById("blog_statistics").select("li>span");
         //原创文章数量
-        mBlogger.originalCount = statEles.get(0).text();
+        blogger.originalCount = statEles.get(0).text();
         //转载文章数量
-        mBlogger.reshipCount = statEles.get(1).text();
+        blogger.reshipCount = statEles.get(1).text();
         //译文数量
-        mBlogger.translationCount = statEles.get(2).text();
+        blogger.translationCount = statEles.get(2).text();
         //评论数量
-        mBlogger.commentCount = statEles.get(3).text();
+        blogger.commentCount = statEles.get(3).text();
         //博客ID
-        mBlogger.blogID = mBlogID;
+        blogger.blogID = mBlogID;
         //博客地址
-        mBlogger.url = getBlogUrl();
-    }
+        blogger.url = getBlogUrl();
 
-    /**
-     * 根据指定索引解析文章
-     * @param index
-     * @return
-     */
-    private BlogArticle parseArticle(int index) throws Exception{
-        //计算index对应的文章在第几页
-        int pageIndex = index/BLOG_PAGESIZE;
-        int beginIndex = pageIndex*BLOG_PAGESIZE;
-
-        //按照博客的一整页进行解析
-        String pageUrl = getArticleUrl(pageIndex);
-        Document articleDoc = Jsoup.connect(pageUrl).get();
-        Elements articleEles = articleDoc.getElementById("article_list").getElementsByClass("list_item article_item");
-        int count = articleEles.size();
-        BlogArticle article = null;
-        for(int i=0; i<count; i++){
-            //根据html元素解析博客文章,返回博客文章实体
-            article = parseArticle(articleEles.get(i));
-            mArticles.put(beginIndex+i, article);
-        }
-        return mArticles.get(index);
+        return blogger;
     }
 
     /**
@@ -169,7 +164,6 @@ class BlogHtmlParser {
      */
     private BlogArticle parseArticle(Element element){
         BlogArticle article = new BlogArticle();
-        article.blogger = mBlogger;
 
         Element titleEle = element.getElementsByClass("article_title").first();
         //文章标题
@@ -206,48 +200,5 @@ class BlogHtmlParser {
      */
     private String getArticleUrl(int pageIndex){
         return getBlogUrl() + "/article/list/" + (pageIndex + 1);
-    }
-
-    /**
-     * 获取博主信息
-     * @return
-     */
-    public Blogger getBlogger(){
-        return mBlogger;
-    }
-
-    /**
-     * 获取博客文章总数
-     * @return
-     */
-    public int getArticleTotalCount(){
-        return mArticleTotalCount;
-    }
-
-    /**
-     * 获取博客文章
-     * @param beginIndex
-     * @param endIndex
-     * @return
-     */
-    public List<BlogArticle> getArticles(int beginIndex, int endIndex) throws Exception{
-        if(beginIndex<0 || beginIndex>=mArticleTotalCount)
-            throw new IndexOutOfBoundsException();
-        if(endIndex<0 || endIndex>=mArticleTotalCount)
-            throw new IndexOutOfBoundsException();
-
-        if(beginIndex>endIndex)
-            throw new Exception("endIndex小于beginIndex异常");
-
-        List<BlogArticle> resultList = new ArrayList<BlogArticle>();
-        BlogArticle article = null;
-        for(int index = beginIndex; index<=endIndex; index++){
-            article = mArticles.get(index);
-            if(article == null){
-                article = parseArticle(index);
-            }
-            resultList.add(article);
-        }
-        return resultList;
     }
 }
