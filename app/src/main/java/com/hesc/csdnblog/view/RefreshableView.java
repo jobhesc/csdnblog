@@ -14,7 +14,6 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
@@ -83,6 +82,22 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         setHeaderViewEnabled(a.getBoolean(R.styleable.RefreshableView_headerViewEnabled, false));
         setFooterViewEnabled(a.getBoolean(R.styleable.RefreshableView_footerViewEnabled, false));
         a.recycle();
+    }
+
+    /**
+     * 正在刷新数据
+     * @return
+     */
+    public boolean isRefreshing(){
+        return isRefreshing;
+    }
+
+    /**
+     * 正在加载更多
+     * @return
+     */
+    public boolean isLoadingMore(){
+        return isloadingMore;
     }
 
     /**
@@ -196,8 +211,6 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                     mHeadState = HeadRefreshState.INIT;
                 } else if(mHeadState == HeadRefreshState.NEEDLOAD){  //需要装载数据
                     startRefresh();
-                    //设置滚动回退到需要装载界限上
-                    resetHeaderHeight(true);
                 } else if(mHeadState == HeadRefreshState.LOADING) { //正在装载
                     //设置滚动回退到需要装载界限上
                     resetHeaderHeight(true);
@@ -250,6 +263,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         //设置界面为数据装载状态
         mHeadState = HeadRefreshState.LOADING;
         mHeadView.updateViews(mHeadState);
+        //设置滚动回退到需要装载界限上
+        resetHeaderHeight(true);
 
         isRefreshing=true;
         mHandler.postDelayed(() -> {
@@ -552,7 +567,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
          * @return
          */
         private String getLastUpdateTime(){
-            String updateTime = pref.getString("update_time","");
+            String attrName = "update_time_" + getContext().getClass().getName();
+            String updateTime = pref.getString(attrName,"");
             if(TextUtils.isEmpty(updateTime))
                 return getResources().getString(R.string.refreshable_head_update_init);
             else {

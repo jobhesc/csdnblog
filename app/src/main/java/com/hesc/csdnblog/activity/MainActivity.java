@@ -1,19 +1,23 @@
 package com.hesc.csdnblog.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ListView;
 
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.adapter.BloggerListAdapter;
-import com.hesc.csdnblog.adapter.DataloadCallback;
 import com.hesc.csdnblog.base.BaseActivity;
+import com.hesc.csdnblog.data.Blogger;
+import com.hesc.csdnblog.data.DataloadCallback;
+import com.hesc.csdnblog.data.InitLoader;
 import com.hesc.csdnblog.view.RefreshableView;
+
+import java.io.Serializable;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class MainActivity extends BaseActivity implements DataloadCallback {
+public class MainActivity extends BaseActivity {
     @InjectView(R.id.main_blogger)
     RefreshableView mListView;
 
@@ -28,37 +32,43 @@ public class MainActivity extends BaseActivity implements DataloadCallback {
         ButterKnife.inject(this);
 
         mAdapter = new BloggerListAdapter(this);
-        mAdapter.loadAllBloggersFromDB(null);
         mListView.setAdapter(mAdapter);
-        mListView.setOnRefreshListener(new RefreshableView.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mAdapter.loadAllBloggersFromNet(MainActivity.this);
-            }
+        setListener();
+        loadData();
+    }
 
-            @Override
-            public void onLoadMore() {
-            }
+    private void loadData(){
+
+        if(InitLoader.getInstance().isInitLoaded()) {  //已经装载过数据
+            //装载数据库中所有的博主信息
+            mAdapter.loadAllFromDB();
+        } else {
+            //进行初始化数据操作
+            InitLoader.getInstance().execute(new DataloadCallback() {
+                @Override
+                public void dataLoaded() {
+                    mAdapter.loadAllFromDB();
+                }
+
+                @Override
+                public void dataLoadFail() {
+
+                }
+            });
+        }
+    }
+
+    private void setListener(){
+        mListView.setOnItemClickListener((parent, view, position, id) ->{
+            Intent intent = new Intent(MainActivity.this, BlogActivity.class);
+            intent.putExtra("blogger", (Blogger)mAdapter.getItem(position));
+            startActivity(intent);
         });
-
-//        mAdapter.loadBloggerFromNet("Luoshengyang");
-//        mAdapter.loadBloggerFromNet("sinyu890807");
-//        mAdapter.loadBloggerFromNet("q199109106q");
-//        mAdapter.loadBloggerFromNet("lmj623565791");
-//        mAdapter.loadBloggerFromNet("u013357243");
-//        mAdapter.loadBloggerFromNet("huangyanan1989");
-
-//        mListView.setOnItemClickListener();
     }
 
     @Override
-    public void dataLoaded() {
-        mListView.stopRefresh(true);
-    }
-
-    @Override
-    public void dataLoadFail() {
-        mListView.stopRefresh(false);
-
+    protected void onDestroy() {
+        InitLoader.getInstance().cancel();
+        super.onDestroy();
     }
 }

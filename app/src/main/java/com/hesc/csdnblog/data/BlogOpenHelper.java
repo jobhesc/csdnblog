@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 class BlogOpenHelper extends OrmLiteSqliteOpenHelper {
     private static final String BLOG_DB_NAME="blog";
-    private static final int BLOG_DB_VERSION = 2;
+    private static final int BLOG_DB_VERSION = 3;
 
     public BlogOpenHelper(Context context) {
         super(context, BLOG_DB_NAME, null, BLOG_DB_VERSION);

@@ -8,6 +8,8 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -247,6 +249,20 @@ class BlogDBHelper {
     }
 
     /**
+     * 删除指定博主对应的所有博客文章
+     * @param blogger
+     */
+    public void deleteArticles(Blogger blogger){
+        DeleteBuilder<BlogArticle, ?> deleteBuilder = mRuntimeBlogArticleDAO.deleteBuilder();
+        try {
+            deleteBuilder.where().eq("blogger", blogger.id);
+            deleteBuilder.delete();
+        } catch (SQLException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+        }
+    }
+
+    /**
      * 给blogger分配博客外键
      * @param blogger
      */
@@ -282,12 +298,30 @@ class BlogDBHelper {
     }
 
     /**
-     * 查找博主下的所有博客文章
+     * 查找指定博主下的所有博客文章
      * @param blogger
      * @return
      */
     public List<BlogArticle> findArticles(Blogger blogger){
         return mRuntimeBlogArticleDAO.queryForEq("blogger", blogger.id);
+    }
+
+    /**
+     * 分页查找指定博主下的博客文章
+     * @param blogger
+     * @param offset
+     * @param limit
+     * @return
+     */
+    public List<BlogArticle> findArticlesByPaging(Blogger blogger, int offset, int limit){
+        QueryBuilder<BlogArticle, ?> builder = mRuntimeBlogArticleDAO.queryBuilder();
+        try {
+            return builder.offset((long)offset).limit((long)limit).orderBy("id", true)
+                    .where().eq("blogger", blogger.id).query();
+        } catch (SQLException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            return null;
+        }
     }
 
     @Override

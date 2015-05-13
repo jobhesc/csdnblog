@@ -1,15 +1,12 @@
 package com.hesc.csdnblog.data;
 
 import android.text.TextUtils;
-import android.util.Log;
-import android.util.SparseArray;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +92,7 @@ class BlogHtmlParser {
         for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
             String pageUrl = getArticleUrl(pageIndex);
             Document articleDoc = Jsoup.connect(pageUrl).get();
-            Elements articleEles = articleDoc.getElementById("article_list").getElementsByClass("list_item article_item");
+            Elements articleEles = articleDoc.getElementById("article_list").children();
 
             int count = articleEles.size();
             BlogArticle article = null;
@@ -177,20 +174,25 @@ class BlogHtmlParser {
         //更新时间
         article.updateOn = manageEle.getElementsByClass("link_postdate").first().text();
         //阅读次数
-        article.readCount = parseArticleCount(manageEle.getElementsByClass("link_view").first().text());
+        article.readCount = manageEle.getElementsByClass("link_view").first().text();
         //评论次数
-        article.commentCount = parseArticleCount(manageEle.getElementsByClass("link_comments").first().text());
+        article.commentCount = manageEle.getElementsByClass("link_comments").first().text();
+        //文章类型
+        article.category = getArticleCategory(titleEle);
 
         return article;
     }
 
-    /**
-     * 由于阅读次数和评论数在html里是带括号的，如(9900),需要进行解析出数字
-     * @param articleCount
-     * @return
-     */
-    private int parseArticleCount(String articleCount){
-        return Integer.parseInt(articleCount.replace("(","").replace(")",""));
+    private int getArticleCategory(Element titleEle) {
+        String c = titleEle.select("div > span:first-child").first().attr("class");
+        if("ico ico_type_Translated".equals(c))
+            return BlogArticle.TRANSLATED;  //译文
+        else if("ico ico_type_Original".equals(c))
+            return BlogArticle.ORIGINAL;  //原创文章
+        else if("ico ico_type_Repost".equals(c))
+            return BlogArticle.REPOST;  //转载文章
+        else
+            throw new IllegalArgumentException("不支持的博客文章类型");
     }
 
     /**

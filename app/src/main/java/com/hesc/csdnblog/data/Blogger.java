@@ -7,12 +7,14 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 /**
  * Created by hesc on 15/4/29.
  * 博客博主信息
  */
 @DatabaseTable(tableName = "blog_blogger")
-public class Blogger extends BaseDaoEnabled {
+public class Blogger extends BaseDaoEnabled implements Serializable {
     //必须有一个无参数的构造函数，系统在构造实体表的时候会用到，否则会报错
     Blogger(){}
 

@@ -12,22 +12,19 @@ import com.hesc.csdnblog.view.CircleMaskImageView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by hesc on 15/5/5.
  */
-public class BloggerListAdapter extends BaseListAdapter {
+public class BloggerListAdapter extends BaseListAdapter<Blogger> {
     private BlogProvider mProvider;
-    private List<Blogger> mBloggers = new ArrayList<>();
 
     public BloggerListAdapter(BaseActivity activity){
         super(activity);
-        mProvider = new BlogProvider(activity);
+        mProvider = BlogProvider.getInstance();
 
     }
 
@@ -35,28 +32,26 @@ public class BloggerListAdapter extends BaseListAdapter {
      * 对博主信息按照博主ID进行排序
      */
     private void sortBloggers(){
-        Collections.sort(mBloggers, (lhs, rhs) -> Long.valueOf(lhs.id).compareTo(rhs.id));
+        Collections.sort(mDatas, (lhs, rhs) -> Long.valueOf(lhs.id).compareTo(rhs.id));
     }
 
     /**
      * 从网络装载指定博客ID的博主信息
      * @param blogID
      */
-    public void loadBloggerFromNet(String blogID,DataloadCallback callback){
+    public void loadFromNet(String blogID){
         safeSubscription(mProvider.loadBloggerFromNet(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
                     if (r != null) {
-                        mBloggers.add(r);
+                        mDatas.add(r);
                         sortBloggers();
                         notifyDataSetChanged();
                     }
-                    if(callback != null)
-                        callback.dataLoaded();
+                    notifyDataLoaded();
                 },
                 e -> {
                     showError(e);
-                    if(callback != null)
-                        callback.dataLoadFail();
+                    notifyDataLoadFail();
                 }
         ));
     }
@@ -65,44 +60,19 @@ public class BloggerListAdapter extends BaseListAdapter {
      * 从数据库装载指定博客ID的博主信息
      * @param blogID
      */
-    public void loadBloggerFromDB(String blogID,DataloadCallback callback){
+    public void loadFromDB(String blogID){
         safeSubscription(mProvider.loadBloggerFromDB(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
                     if (r != null) {
-                        mBloggers.add(r);
+                        mDatas.add(r);
                         sortBloggers();
                         notifyDataSetChanged();
                     }
-                    if(callback != null)
-                        callback.dataLoaded();
+                    notifyDataLoaded();
                 },
                 e -> {
                     showError(e);
-                    if(callback != null)
-                        callback.dataLoadFail();
-                }
-        ));
-    }
-
-    /**
-     * 从网络装载所有博主信息数据
-     */
-    public void loadAllBloggersFromNet(DataloadCallback callback){
-        safeSubscription(mProvider.loadBloggersFromNet(mBloggers).observeOn(AndroidSchedulers.mainThread()).subscribe(
-                r -> {
-                    mBloggers.clear();
-                    if (r != null) {
-                        mBloggers.addAll(r);
-                        sortBloggers();
-                        notifyDataSetChanged();
-                    }
-                    if(callback != null)
-                        callback.dataLoaded();
-                },
-                e -> {
-                    showError(e);
-                    if(callback != null)
-                        callback.dataLoadFail();
+                    notifyDataLoadFail();
                 }
         ));
     }
@@ -110,34 +80,27 @@ public class BloggerListAdapter extends BaseListAdapter {
     /**
      * 从数据库装载所有博主信息数据
      */
-    public void loadAllBloggersFromDB(DataloadCallback callback){
+    public void loadAllFromDB(){
         safeSubscription(mProvider.loadAllBloggerFromDB().observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
-                    mBloggers.clear();
+                    mDatas.clear();
                     if (r != null) {
-                        mBloggers.addAll(r);
+                        mDatas.addAll(r);
                         sortBloggers();
                         notifyDataSetChanged();
                     }
-                    if(callback != null)
-                        callback.dataLoaded();
+                    notifyDataLoaded();
                 },
                 e -> {
                     showError(e);
-                    if(callback != null)
-                        callback.dataLoadFail();
+                    notifyDataLoadFail();
                 }
         ));
     }
 
     @Override
-    public int getCount() {
-        return mBloggers.size();
-    }
-
-    @Override
     protected void bindView(View convertView, int position) {
-        Blogger blogger = mBloggers.get(position);
+        Blogger blogger = (Blogger)getItem(position);
 
         CircleMaskImageView imageView = findView(convertView, R.id.listview_blogger_image);
         TextView titleView = findView(convertView, R.id.listview_blogger_title);

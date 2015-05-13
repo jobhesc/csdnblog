@@ -15,10 +15,12 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
  */
 public class MyApplication extends Application {
     private static final String LOG_TAG=MyApplication.class.getName();
+    private static Context globalContext;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        globalContext = this.getApplicationContext();
         //初始化ImageLoader
         initImageLoader(getApplicationContext());
 
@@ -28,6 +30,10 @@ public class MyApplication extends Application {
                 Log.e(LOG_TAG, ex.getMessage(), ex);
             }
         });
+    }
+
+    public static Context getContext() {
+        return globalContext;
     }
 
     /**

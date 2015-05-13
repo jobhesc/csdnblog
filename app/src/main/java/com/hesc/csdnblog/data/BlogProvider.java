@@ -1,8 +1,8 @@
 package com.hesc.csdnblog.data;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
+
+import com.hesc.csdnblog.application.MyApplication;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -26,8 +26,9 @@ public class BlogProvider {
     private Executor dbExecutor;
     private Executor httpExecutor;
     private Hashtable<String, BlogHtmlParser> mHtmlParserPool;
+    private volatile static BlogProvider instance;
 
-    public BlogProvider(Context context){
+    private BlogProvider(Context context){
         mContext = context;
         mDBHelper = new BlogDBHelper(mContext);
         mHtmlParserPool = new Hashtable<>();
@@ -35,21 +36,48 @@ public class BlogProvider {
         dbExecutor = Executors.newSingleThreadExecutor();
     }
 
+    public static BlogProvider getInstance(){
+        if(instance == null){
+            synchronized (BlogProvider.class){
+                if(instance == null){
+                    instance = new BlogProvider(MyApplication.getContext());
+                }
+            }
+        }
+        return instance;
+    }
+
     /**
-     * 从网络装载博主对应的所有博客文章
+     * 从网络分页装载博主对应的博客文章
      * @param blogger
+     * @param startIndex
+     * @param requestLen
      * @return
      */
-    public Observable<List<BlogArticle>> loadArticlesFromNet(Blogger blogger){
+    public Observable<List<BlogArticle>> loadArticlesFromNet(Blogger blogger, int startIndex, int requestLen){
         return Observable.create(subscriber -> {
-            Runnable runnable = getArticlesFromNet(subscriber, blogger);
+            Runnable runnable = getArticlesFromNet(subscriber, blogger, startIndex, requestLen);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
             subscriber.add(Subscriptions.from(task));
             httpExecutor.execute(task);
         });
     }
 
-
+    /**
+     * 从数据库分页加载博主对应的博客文章
+     * @param blogger
+     * @param startIndex
+     * @param requestLen
+     * @return
+     */
+    public Observable<List<BlogArticle>> loadArticlesFromDB(Blogger blogger, int startIndex, int requestLen){
+        return Observable.create(subscriber -> {
+            Runnable runnable = getArticlesFromDB(subscriber, blogger, startIndex, requestLen);
+            FutureTask<Void> task = new FutureTask<Void>(runnable, null);
+            subscriber.add(Subscriptions.from(task));
+            dbExecutor.execute(task);
+        });
+    }
 
     /**
      * 从网络装载博客ID对应的博主信息
@@ -80,12 +108,12 @@ public class BlogProvider {
 
     /**
      * 从网络装载博主信息
-     * @param bloggers
+     * @param blogIDs
      * @return
      */
-    public Observable<List<Blogger>> loadBloggersFromNet(List<Blogger> bloggers){
+    public Observable<List<Blogger>> loadBloggersFromNet(List<String> blogIDs){
         return Observable.create(subscriber -> {
-            Runnable runnable = getLoadBloggersFromNet(subscriber, bloggers);
+            Runnable runnable = getLoadBloggersFromNet(subscriber, blogIDs);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
             subscriber.add(Subscriptions.from(task));
             httpExecutor.execute(task);
@@ -122,10 +150,10 @@ public class BlogProvider {
     /**
      * 从网络加载所有博主信息的代码执行段
      * @param subscriber
-     * @param bloggers
+     * @param blogIDs
      * @return
      */
-    private Runnable getLoadBloggersFromNet(final Subscriber<? super List<Blogger>> subscriber, List<Blogger> bloggers){
+    private Runnable getLoadBloggersFromNet(final Subscriber<? super List<Blogger>> subscriber, List<String> blogIDs){
         return ()->{
             try {
                 if (subscriber.isUnsubscribed()) {
@@ -133,16 +161,16 @@ public class BlogProvider {
                 }
 
                 List<Blogger> results = new ArrayList<>();
-                if (bloggers != null && bloggers.size() > 0) {
+                if (blogIDs != null && blogIDs.size() > 0) {
                     Blogger dstBlogger = null;
-                    for (Blogger srcBlogger : bloggers) {
+                    for (String blogID : blogIDs) {
                         //从网络更新博主信息
-                        dstBlogger = getHtmlParser(srcBlogger.blogID).parseBlogger();
+                        dstBlogger = getHtmlParser(blogID).parseBlogger();
                         results.add(dstBlogger);
                     }
                 }
                 //保存最新的博主信息到数据库
-                mDBHelper.updateBloggers(results);
+                mDBHelper.insertBloggers(results);
 
                 subscriber.onNext(results);
                 subscriber.onCompleted();
@@ -177,9 +205,12 @@ public class BlogProvider {
      * 从网络加载指定博主的所有博客文章的代码执行段
      * @param subscriber
      * @param blogger
+     * @param startIndex
+     * @param requestLen
      * @return
      */
-    private Runnable getArticlesFromNet(final Subscriber<? super List<BlogArticle>> subscriber, Blogger blogger){
+    private Runnable getArticlesFromNet(final Subscriber<? super List<BlogArticle>> subscriber,
+                                        Blogger blogger, int startIndex, int requestLen){
         return ()->{
             try {
                 if (subscriber.isUnsubscribed()) {
@@ -194,10 +225,37 @@ public class BlogProvider {
                 }
 
                 //删除原数据库中所有该博主对应的文章
-                List<BlogArticle> oldArticles = mDBHelper.findArticles(blogger);
-                mDBHelper.deleteArticles(oldArticles);
+                mDBHelper.deleteArticles(blogger);
                 //保存最新的博客文章信息到数据库
-                mDBHelper.updateArticles(articles);
+                mDBHelper.insertArticles(articles);
+                //从数据库重新查找博客文章
+                articles = mDBHelper.findArticlesByPaging(blogger, startIndex, requestLen);
+
+                subscriber.onNext(articles);
+                subscriber.onCompleted();
+            } catch(Exception e){
+                subscriber.onError(e);
+            }
+        };
+    }
+
+    /**
+     * 从数据库加载指定博主的博客文章的代码执行段
+     * @param subscriber
+     * @param blogger
+     * @param startIndex
+     * @param requestLen
+     * @return
+     */
+    private Runnable getArticlesFromDB(final Subscriber<? super List<BlogArticle>> subscriber,
+                                       Blogger blogger, int startIndex, int requestLen){
+        return ()->{
+            try {
+                if (subscriber.isUnsubscribed()) {
+                    return;
+                }
+                //从数据库查找博客文章信息
+                List<BlogArticle> articles = mDBHelper.findArticlesByPaging(blogger, startIndex, requestLen);
 
                 subscriber.onNext(articles);
                 subscriber.onCompleted();

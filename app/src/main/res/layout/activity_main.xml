@@ -8,6 +8,6 @@
         android:id="@+id/main_blogger"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        blog:headerViewEnabled="true"
+        blog:headerViewEnabled="false"
         blog:footerViewEnabled="false"/>
 </LinearLayout>

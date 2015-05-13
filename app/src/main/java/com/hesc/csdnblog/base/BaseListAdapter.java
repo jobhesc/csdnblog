@@ -5,19 +5,24 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
+
+import com.hesc.csdnblog.data.DataloadCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Subscription;
 
 /**
  * Created by hesc on 15/5/5.
  */
-public abstract class BaseListAdapter extends BaseAdapter {
+public abstract class BaseListAdapter<T> extends BaseAdapter {
     protected  static final String LOG_TAG=BaseListAdapter.class.getName();
     protected BaseActivity mActivity;
     protected LayoutInflater mInflater;
+    private DataloadCallback mLoadCallback = null;
+    protected List<T> mDatas = new ArrayList<>();
 
     public BaseListAdapter(BaseActivity activity){
         mActivity = activity;
@@ -26,17 +31,17 @@ public abstract class BaseListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 0;
+        return mDatas.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return mDatas.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
@@ -94,5 +99,29 @@ public abstract class BaseListAdapter extends BaseAdapter {
      */
     public void safeSubscription(Subscription subscription){
         mActivity.safeSubscription(subscription);
+    }
+
+    /**
+     * 设置数据装载回调接口
+     * @param callback
+     */
+    public void setDataLoadCallback(DataloadCallback callback){
+        mLoadCallback = callback;
+    }
+
+    /**
+     * 通知数据装载成功
+     */
+    protected void notifyDataLoaded(){
+        if(mLoadCallback != null)
+            mLoadCallback.dataLoaded();
+    }
+
+    /**
+     * 通知数据装载失败
+     */
+    protected void notifyDataLoadFail(){
+        if(mLoadCallback != null)
+            mLoadCallback.dataLoadFail();
     }
 }

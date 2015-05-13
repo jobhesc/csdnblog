@@ -5,11 +5,13 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.misc.BaseDaoEnabled;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 /**
  * Created by hesc on 15/4/29.
  */
 @DatabaseTable(tableName = "blog_article")
-public class BlogArticle extends BaseDaoEnabled {
+public class BlogArticle extends BaseDaoEnabled implements ArticleCategory, Serializable {
     //必须有一个无参数的构造函数，系统在构造实体表的时候会用到，否则会报错
     BlogArticle(){}
 
@@ -46,15 +48,20 @@ public class BlogArticle extends BaseDaoEnabled {
      * 阅读次数
      */
     @DatabaseField(columnName = "read_count")
-    public int readCount;
+    public String readCount;
     /**
      * 评论数
      */
     @DatabaseField(columnName = "comment_count")
-    public int commentCount;
+    public String commentCount;
     /**
      * 博客地址
      */
     @DatabaseField(columnName = "url")
     public String url;
+    /**
+     * 文章类型：原创、转载、译文
+     */
+    @DatabaseField(columnName = "category")
+    public int category;
 }

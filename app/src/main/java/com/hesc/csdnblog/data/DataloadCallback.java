@@ -1,4 +1,4 @@
-package com.hesc.csdnblog.adapter;
+package com.hesc.csdnblog.data;
 
 /**
  * Created by hesc on 2015/5/10 0010.
