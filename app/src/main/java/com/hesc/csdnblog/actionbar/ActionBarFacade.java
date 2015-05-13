@@ -78,7 +78,6 @@ public class ActionBarFacade {
      * 关闭结束Activity
      */
     private void finishActivity(){
-        if(!mActivity.isTaskRoot())
-            mActivity.finish();
+        mActivity.finish();
     }
 }

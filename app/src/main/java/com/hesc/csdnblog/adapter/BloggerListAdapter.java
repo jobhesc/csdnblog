@@ -40,8 +40,10 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
      * @param blogID
      */
     public void loadFromNet(String blogID){
+        mActivity.showWaitingProgress();
         safeSubscription(mProvider.loadBloggerFromNet(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
+                    mActivity.hideWaitingProgress();
                     if (r != null) {
                         mDatas.add(r);
                         sortBloggers();
@@ -50,6 +52,7 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
                     notifyDataLoaded();
                 },
                 e -> {
+                    mActivity.hideWaitingProgress();
                     showError(e);
                     notifyDataLoadFail();
                 }
@@ -61,8 +64,10 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
      * @param blogID
      */
     public void loadFromDB(String blogID){
+        mActivity.showWaitingProgress();
         safeSubscription(mProvider.loadBloggerFromDB(blogID).observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
+                    mActivity.hideWaitingProgress();
                     if (r != null) {
                         mDatas.add(r);
                         sortBloggers();
@@ -71,6 +76,7 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
                     notifyDataLoaded();
                 },
                 e -> {
+                    mActivity.hideWaitingProgress();
                     showError(e);
                     notifyDataLoadFail();
                 }
@@ -81,8 +87,10 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
      * 从数据库装载所有博主信息数据
      */
     public void loadAllFromDB(){
+        mActivity.showWaitingProgress();
         safeSubscription(mProvider.loadAllBloggerFromDB().observeOn(AndroidSchedulers.mainThread()).subscribe(
                 r -> {
+                    mActivity.hideWaitingProgress();
                     mDatas.clear();
                     if (r != null) {
                         mDatas.addAll(r);
@@ -92,6 +100,7 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
                     notifyDataLoaded();
                 },
                 e -> {
+                    mActivity.hideWaitingProgress();
                     showError(e);
                     notifyDataLoadFail();
                 }

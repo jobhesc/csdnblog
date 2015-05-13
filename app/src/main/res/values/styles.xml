@@ -10,4 +10,14 @@
 
     <style name="ActionBarTextAppearance" parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse">
     </style>
+
+    <style name="waiting_progress_dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>

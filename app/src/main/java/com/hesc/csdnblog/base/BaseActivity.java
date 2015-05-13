@@ -1,11 +1,17 @@
 package com.hesc.csdnblog.base;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.actionbar.ActionBarFacade;
 import com.hesc.csdnblog.actionbar.ActionBarFactory;
 import com.hesc.csdnblog.actionbar.ActionBarShowMode;
@@ -24,6 +30,7 @@ public class BaseActivity extends ActionBarActivity {
     private static final ActionBarShowMode ACTIONBAR_DEFAULT_SHOWMODE=ActionBarShowMode.ACTIONBAR_EMBEDED;
     private ActionBarFacade mActionBarFacade;
     private List<Subscription> subscriptionList = new ArrayList<>();
+    private Dialog mProgressDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,40 @@ public class BaseActivity extends ActionBarActivity {
 
     public void showToast(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 显示等待进度条
+     */
+    public void showWaitingProgress(){
+        hideWaitingProgress();
+
+        new Dialog(this, R.style.waiting_progress_dialog);
+        mProgressDialog = new Dialog(this, R.style.waiting_progress_dialog);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setContentView(R.layout.base_progress);
+
+        WindowManager.LayoutParams layoutParams = mProgressDialog.getWindow().getAttributes();
+        //设定进入window时，隐藏软键盘
+        layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
+        // 设定布局
+        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
+        // 当FLAG_DIM_BEHIND设置后生效。该变量指示后面的窗口变暗的程度。1.0表示完全不透明，0.0表示没有变暗;
+        layoutParams.dimAmount=0.0F;
+
+        mProgressDialog.show();
+    }
+
+    /**
+     * 隐藏等待进度条
+     */
+    public void hideWaitingProgress(){
+        if(mProgressDialog != null && mProgressDialog.isShowing()){
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
+        }
     }
 
     /**

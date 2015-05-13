@@ -191,6 +191,7 @@ public class BlogProvider {
                 if (subscriber.isUnsubscribed()) {
                     return;
                 }
+                Thread.sleep(10000);
                 //从数据库查询所有的博主信息
                 List<Blogger> bloggers = mDBHelper.findAllBloggers();
                 subscriber.onNext(bloggers);

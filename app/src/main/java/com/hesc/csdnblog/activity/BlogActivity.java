@@ -16,6 +16,7 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
     @InjectView(R.id.blog_article)
     RefreshableView mListView;
     private ArticleListAdapter mAdapter;
+    private boolean isFirstLoading = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +29,17 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         Blogger blogger = (Blogger)getIntent().getSerializableExtra("blogger");
         mAdapter = new ArticleListAdapter(this, blogger);
         mListView.setAdapter(mAdapter);
-        //开始刷新数据
-        mListView.startRefresh();
+        mAdapter.setDataLoadCallback(this);
+        setListener();
+        loadData();
+    }
+
+    private void loadData(){
+        //从数据库装载数据
+        mAdapter.loadNext();
+    }
+
+    private void setListener(){
         mListView.setOnRefreshListener(new RefreshableView.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -47,24 +57,34 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
 
     @Override
     public void dataLoaded() {
-        //刷新数据成功
-        if(mListView.isRefreshing())
-            mListView.stopRefresh(true);
-        //加载更多成功
-        if(mListView.isLoadingMore())
-            mListView.stopLoadMore(true);
+        if(isFirstLoading) {
+            mListView.startRefresh();
+            isFirstLoading = false;
+        } else {
+            //刷新数据成功
+            if (mListView.isRefreshing())
+                mListView.stopRefresh(true);
+            //加载更多成功
+            if (mListView.isLoadingMore())
+                mListView.stopLoadMore(true);
 
-        //如果数据已经加载完成，则隐藏加载更多
-        mListView.setFooterViewEnabled(!mAdapter.isEnd());
+            //如果数据已经加载完成，则隐藏加载更多
+            mListView.setFooterViewEnabled(!mAdapter.isEnd());
+        }
     }
 
     @Override
     public void dataLoadFail() {
-        //刷新数据失败
-        if(mListView.isRefreshing())
-            mListView.stopRefresh(false);
-        //加载更多失败
-        if(mListView.isLoadingMore())
-            mListView.stopLoadMore(false);
+        if(isFirstLoading) {
+            mListView.startRefresh();
+            isFirstLoading = false;
+        } else {
+            //刷新数据失败
+            if (mListView.isRefreshing())
+                mListView.stopRefresh(false);
+            //加载更多失败
+            if (mListView.isLoadingMore())
+                mListView.stopLoadMore(false);
+        }
     }
 }

@@ -59,6 +59,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     private boolean isRefreshing = false;
     //是否正在加载更多
     private boolean isloadingMore = false;
+    //原来表尾加载更多视图的启用状态
+    private boolean mOldFooterEnabled = false;
 
     public RefreshableView(Context context){
         super(context);
@@ -187,6 +189,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                 if(!mHeaderViewEnabled) break;
                 //如果不是向下拉，不处理
                 if(delta<=0) break;
+                //正在加载更多，不能进行刷新数据操作
+                if(isloadingMore) break;
                 //如果第一个可见项索引不为0，不处理
                 if(getFirstVisiblePosition() != 0) break;
                 //修改表头的可见高度
@@ -205,6 +209,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                 if(getFirstVisiblePosition() != 0) break;
                 //没有启用表头刷新视图，不处理
                 if(!mHeaderViewEnabled) break;
+                //正在加载更多，不能进行刷新数据操作
+                if(isloadingMore) break;
 
                 if(mHeadState == HeadRefreshState.NONLOAD){  //不需要装载数据
                     resetHeaderHeight(false);
@@ -235,6 +241,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         mHeadState = HeadRefreshState.INIT;
         mHeadView.updateViews(mHeadState);
         isRefreshing = false;
+        //恢复表尾加载更多视图的启用状态
+        setFooterViewEnabled(mOldFooterEnabled);
     }
 
     /**
@@ -260,13 +268,19 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         if(!mHeaderViewEnabled) return;
         //正在刷新数据，不处理
         if(isRefreshing) return;
+        //正在加载更多，不能执行刷新数据操作
+        if(isloadingMore) return;
+
+        isRefreshing=true;
+        //设置滚动回退到需要装载界限上
+        resetHeaderHeight(true);
         //设置界面为数据装载状态
         mHeadState = HeadRefreshState.LOADING;
         mHeadView.updateViews(mHeadState);
-        //设置滚动回退到需要装载界限上
-        resetHeaderHeight(true);
+        //刷新数据时，不显示加载更多视图
+        mOldFooterEnabled = mFooterViewEnabled;
+        setFooterViewEnabled(false);
 
-        isRefreshing=true;
         mHandler.postDelayed(() -> {
             //刷新数据成功，保存更新数据时间
             if (mRefreshListener != null){
@@ -284,6 +298,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         if(!mFooterViewEnabled) return;
         //正在加载更多，不处理
         if(isloadingMore) return;
+        //正在刷新数据，不能进行加载更多操作
+        if(isRefreshing) return;
 
         isloadingMore=true;
         mFootState = FootRefreshState.LOADING;
@@ -567,13 +583,16 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
          * @return
          */
         private String getLastUpdateTime(){
-            String attrName = "update_time_" + getContext().getClass().getName();
-            String updateTime = pref.getString(attrName,"");
+            String updateTime = pref.getString(getPrefUpdateOnName(),"");
             if(TextUtils.isEmpty(updateTime))
                 return getResources().getString(R.string.refreshable_head_update_init);
             else {
                 return getResources().getString(R.string.refreshable_head_update_time) + updateTime;
             }
+        }
+
+        private String getPrefUpdateOnName(){
+            return "update_time_" + getContext().getClass().getName();
         }
 
         /**
@@ -583,7 +602,7 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
             Date date = Calendar.getInstance(Locale.getDefault()).getTime();
             SimpleDateFormat format = new SimpleDateFormat("MM月dd日 HH:mm");
             String updateTime = format.format(date);
-            pref.edit().putString("update_time", updateTime).commit();
+            pref.edit().putString(getPrefUpdateOnName(), updateTime).commit();
 
             mLastUpdateTime = getLastUpdateTime();
         }

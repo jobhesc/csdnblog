@@ -2,6 +2,7 @@ package com.hesc.csdnblog.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hesc.csdnblog.R;
@@ -28,6 +29,7 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
         super(activity);
         mBlogger = blogger;
         mProvider = BlogProvider.getInstance();
+        reset();
     }
 
     public Blogger getBlogger(){
@@ -49,7 +51,7 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
         safeSubscription(mProvider.loadArticlesFromDB(mBlogger, mLastLoadedIndex + 1, PAGE_SIZE)
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         r -> {
-                            if(r != null){
+                            if (r != null) {
                                 mDatas.addAll(r);
                                 setState(r.size());
                                 notifyDataSetChanged();
@@ -83,14 +85,12 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
      * 从网络装载指博客文章信息
      */
     public void loadFromNet(){
-        //从网络装载数据，需要重新装载数据
-        reset();
-
-        safeSubscription(mProvider.loadArticlesFromNet(mBlogger, mLastLoadedIndex + 1, PAGE_SIZE)
+        safeSubscription(mProvider.loadArticlesFromNet(mBlogger, 0, PAGE_SIZE)
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         r -> {
                             if (r != null) {
                                 mDatas.addAll(r);
+                                reset();
                                 setState(r.size());
                                 notifyDataSetChanged();
                             }
@@ -107,14 +107,15 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
     protected void bindView(View convertView, int position) {
         BlogArticle article = (BlogArticle)getItem(position);
 
+        ImageView iconView = findView(convertView, R.id.listview_article_icon);
         TextView titleView = findView(convertView, R.id.listview_article_title);
         TextView summayView = findView(convertView, R.id.listview_article_summay);
         TextView updateOnView = findView(convertView, R.id.listview_article_updateOn);
         TextView readStateView = findView(convertView, R.id.listview_article_readState);
         TextView commentStateView = findView(convertView, R.id.listview_article_commentState);
 
+        iconView.setImageDrawable(getArticleCategoryDrawable(article));
         titleView.setText(article.title);
-        titleView.setCompoundDrawables(getArticleCategoryDrawable(article), null, null, null);
         summayView.setText(article.summary);
         updateOnView.setText(article.updateOn);
         readStateView.setText(article.readCount);
