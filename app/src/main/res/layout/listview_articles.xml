@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawablePadding="5dp"
-        android:drawableLeft="@drawable/ico_original"
+        android:drawableLeft="@drawable/icon_original"
         android:textSize="16sp"
         android:singleLine="false"
         android:text="标题"/>
@@ -42,7 +42,7 @@
             android:layout_marginLeft="10dp"
             android:textSize="10sp"
             android:textColor="@android:color/darker_gray"
-            android:drawableLeft="@drawable/ico_view"
+            android:drawableLeft="@drawable/icon_view"
             android:drawablePadding="5dp"
             android:text="阅读情况"/>
         <TextView android:id="@+id/listview_article_commentState"
@@ -51,7 +51,7 @@
             android:layout_marginLeft="10dp"
             android:textSize="10sp"
             android:textColor="@android:color/darker_gray"
-            android:drawableLeft="@drawable/ico_comm"
+            android:drawableLeft="@drawable/icon_comment"
             android:drawablePadding="5dp"
             android:text="评论情况"/>
     </LinearLayout>

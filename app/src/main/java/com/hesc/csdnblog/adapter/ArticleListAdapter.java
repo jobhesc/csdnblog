@@ -129,11 +129,11 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
     public Drawable getArticleCategoryDrawable(BlogArticle article){
         switch (article.category){
             case BlogArticle.ORIGINAL:
-                return mActivity.getResources().getDrawable(R.drawable.ico_original);
+                return mActivity.getResources().getDrawable(R.drawable.icon_original);
             case BlogArticle.REPOST:
-                return mActivity.getResources().getDrawable(R.drawable.ico_repost);
+                return mActivity.getResources().getDrawable(R.drawable.icon_repost);
             case BlogArticle.TRANSLATED:
-                return mActivity.getResources().getDrawable(R.drawable.ico_translated);
+                return mActivity.getResources().getDrawable(R.drawable.icon_translated);
             default:
                 return null;
         }
