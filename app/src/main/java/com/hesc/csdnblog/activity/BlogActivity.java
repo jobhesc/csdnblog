@@ -1,10 +1,12 @@
 package com.hesc.csdnblog.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.adapter.ArticleListAdapter;
 import com.hesc.csdnblog.base.BaseActivity;
+import com.hesc.csdnblog.data.BlogArticle;
 import com.hesc.csdnblog.data.Blogger;
 import com.hesc.csdnblog.data.DataloadCallback;
 import com.hesc.csdnblog.view.RefreshableView;
@@ -13,7 +15,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class BlogActivity extends BaseActivity implements DataloadCallback {
-    @InjectView(R.id.blog_article)
+    @InjectView(R.id.blog_article_list)
     RefreshableView mListView;
     private ArticleListAdapter mAdapter;
     private boolean isFirstLoading = true;
@@ -27,6 +29,7 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         ButterKnife.inject(this);
 
         Blogger blogger = (Blogger)getIntent().getSerializableExtra("blogger");
+        setTitle(blogger.blogName);
         mAdapter = new ArticleListAdapter(this, blogger);
         mListView.setAdapter(mAdapter);
         mAdapter.setDataLoadCallback(this);
@@ -52,6 +55,12 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
                 //从数据库更新数据
                 mAdapter.loadNext();
             }
+        });
+
+        mListView.setOnItemClickListener((parent, view, position, id) ->{
+            Intent intent = new Intent(BlogActivity.this, ArticleActivity.class);
+            intent.putExtra("article", (BlogArticle)mAdapter.getItem(position));
+            startActivity(intent);
         });
     }
 

@@ -16,6 +16,7 @@ import java.util.List;
 class BlogHtmlParser {
     //博客的基地址
     private static final String BLOG_BASEURL="http://blog.csdn.net/";
+    private static final String BLOG_BASEURL_MOBILE="http://m.blog.csdn.net/blog/";
     //博客ID
     private String mBlogID = null;
     //文档
@@ -30,9 +31,16 @@ class BlogHtmlParser {
      * @return
      */
     public String getBlogUrl(){
-        return BLOG_BASEURL + mBlogID;
+        return BLOG_BASEURL + mBlogID + "/";
     }
 
+    /**
+     * 获取移动版博客地址
+     * @return
+     */
+    public String getMobileBlogUrl(){
+        return BLOG_BASEURL_MOBILE + mBlogID + "/";
+    }
     /**
      * 校验文档的合法性
      */
@@ -166,7 +174,7 @@ class BlogHtmlParser {
         //文章标题
         article.title = titleEle.select("a[href]").first().text();
         //文章地址
-        article.url = BLOG_BASEURL + titleEle.select("a[href]").attr("href");
+        article.url = getMobileBlogUrl() + getArticleID(titleEle.select("a[href]").attr("href"));
         //概要
         article.summary = element.getElementsByClass("article_description").first().text();
 
@@ -181,6 +189,18 @@ class BlogHtmlParser {
         article.category = getArticleCategory(titleEle);
 
         return article;
+    }
+
+    /**
+     * 获取博客文章ID
+     * @param href
+     * @return
+     */
+    private String getArticleID(String href){
+        //地址一般为"/XXXX/article/details/26365913"，需要把26365913截取出来
+        int index = href.lastIndexOf("/");
+        return href.substring(index+1, href.length());
+
     }
 
     private int getArticleCategory(Element titleEle) {

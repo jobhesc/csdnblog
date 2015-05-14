@@ -27,7 +27,7 @@ public class BaseActivity extends ActionBarActivity {
     /**
      * ActionBar默认的显示样式
      */
-    private static final ActionBarShowMode ACTIONBAR_DEFAULT_SHOWMODE=ActionBarShowMode.ACTIONBAR_EMBEDED;
+    private static final ActionBarShowMode ACTIONBAR_DEFAULT_SHOWMODE=ActionBarShowMode.ACTIONBAR_INDEPENDENT;
     private ActionBarFacade mActionBarFacade;
     private List<Subscription> subscriptionList = new ArrayList<>();
     private Dialog mProgressDialog = null;
@@ -36,6 +36,18 @@ public class BaseActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActionBarFacade = new ActionBarFacade(this, createActionBar());
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        mActionBarFacade.getActionBar().setTitle(title.toString());
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        super.setTitle(titleId);
+        mActionBarFacade.getActionBar().setTitle(getText(titleId).toString());
     }
 
     @Override
@@ -83,21 +95,10 @@ public class BaseActivity extends ActionBarActivity {
     public void showWaitingProgress(){
         hideWaitingProgress();
 
-        new Dialog(this, R.style.waiting_progress_dialog);
         mProgressDialog = new Dialog(this, R.style.waiting_progress_dialog);
         mProgressDialog.setCancelable(false);
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setContentView(R.layout.base_progress);
-
-        WindowManager.LayoutParams layoutParams = mProgressDialog.getWindow().getAttributes();
-        //设定进入window时，隐藏软键盘
-        layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
-        // 设定布局
-        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-        layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
-        // 当FLAG_DIM_BEHIND设置后生效。该变量指示后面的窗口变暗的程度。1.0表示完全不透明，0.0表示没有变暗;
-        layoutParams.dimAmount=0.0F;
-
         mProgressDialog.show();
     }
 

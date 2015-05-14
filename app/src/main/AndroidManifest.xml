@@ -27,6 +27,10 @@
             android:name=".activity.BlogActivity"
             android:label="@string/title_activity_blog" >
         </activity>
+        <activity
+            android:name=".activity.ArticleActivity"
+            android:label="@string/title_activity_article" >
+        </activity>
     </application>
 
 </manifest>
