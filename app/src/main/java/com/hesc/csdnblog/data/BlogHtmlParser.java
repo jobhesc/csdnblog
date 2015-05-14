@@ -19,8 +19,6 @@ class BlogHtmlParser {
     private static final String BLOG_BASEURL_MOBILE="http://m.blog.csdn.net/blog/";
     //博客ID
     private String mBlogID = null;
-    //文档
-    private Document mDocument = null;
 
     public BlogHtmlParser(String blogID){
         mBlogID = blogID;
@@ -44,12 +42,12 @@ class BlogHtmlParser {
     /**
      * 校验文档的合法性
      */
-    private void checkDocValidate()throws Exception{
-        if(mDocument == null){
+    private void checkDocValidate(Document document)throws Exception{
+        if(document == null){
             throw new Exception("mDocument为空异常！");
         }
 
-        if(mDocument.getElementById("panel_Profile") == null){
+        if(document.getElementById("panel_Profile") == null){
             throw new Exception("url对应的地址不是csdn的博客地址");
         }
     }
@@ -69,16 +67,16 @@ class BlogHtmlParser {
      * 获取博客的DOM
      * @throws Exception
      */
-    private void obtainDocument() throws Exception{
-        if(mDocument == null){
-            if(TextUtils.isEmpty(mBlogID)){
-                throw new Exception("博客ID不能为空！");
-            }
-
-            mDocument = Jsoup.connect(getBlogUrl()).get();
-            //校验文档的合法性
-            checkDocValidate();
+    private Document obtainDocument() throws Exception{
+        if(TextUtils.isEmpty(mBlogID)){
+            throw new Exception("博客ID不能为空！");
         }
+
+        Document document = Jsoup.connect(getBlogUrl()).get();
+        //校验文档的合法性
+        checkDocValidate(document);
+
+        return document;
     }
 
     /**
@@ -88,17 +86,17 @@ class BlogHtmlParser {
      */
     public List<BlogArticle> parseArticles() throws Exception {
         //获取博客的DOM
-        obtainDocument();
+        Document document = obtainDocument();
 
         List<BlogArticle> articles = new ArrayList<>();
         //获取博客文章页码数
-        Element pageEle = mDocument.getElementById("papelist");
+        Element pageEle = document.getElementById("papelist");
         String pageInfo = pageEle.getElementsByTag("span").first().text();
         int pageCount = parseArticlePageCount(pageInfo);
         if(pageCount == 0) return articles;
 
         for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
-            String pageUrl = getArticleUrl(pageIndex);
+            String pageUrl = getArticlePageUrl(pageIndex);
             Document articleDoc = Jsoup.connect(pageUrl).get();
             Elements articleEles = articleDoc.getElementById("article_list").children();
 
@@ -118,10 +116,10 @@ class BlogHtmlParser {
      */
     public Blogger parseBlogger() throws Exception{
         //获取博客的DOM
-        obtainDocument();
+        Document document = obtainDocument();
 
         Blogger blogger = new Blogger();
-        Element profileEle = mDocument.getElementById("panel_Profile");
+        Element profileEle = document.getElementById("panel_Profile");
         Element userfaceEle = profileEle.getElementById("blog_userface");
         //博客编号
         blogger.blogCode = userfaceEle.getElementsByClass("user_name").first().text();
@@ -129,13 +127,13 @@ class BlogHtmlParser {
         blogger.iconUrl = userfaceEle.getElementsByTag("img").first().attr("src");
 
         //博客名称
-        Element titleEle = mDocument.getElementById("blog_title");
+        Element titleEle = document.getElementById("blog_title");
         blogger.blogName = titleEle.getElementsByTag("h2").select("a[href]").first().text();
         blogger.customName = blogger.blogName;
         //博客描述
         blogger.blogDesc = titleEle.getElementsByTag("h3").first().text();
 
-        Elements rankEles = mDocument.getElementById("blog_rank").select("li>span");
+        Elements rankEles = document.getElementById("blog_rank").select("li>span");
         //博客访问次数
         blogger.visitCount = rankEles.get(0).text();
         //积分
@@ -145,7 +143,7 @@ class BlogHtmlParser {
         //排名
         blogger.rank = rankEles.get(3).text();
 
-        Elements statEles = mDocument.getElementById("blog_statistics").select("li>span");
+        Elements statEles = document.getElementById("blog_statistics").select("li>span");
         //原创文章数量
         blogger.originalCount = statEles.get(0).text();
         //转载文章数量
@@ -174,7 +172,7 @@ class BlogHtmlParser {
         //文章标题
         article.title = titleEle.select("a[href]").first().text();
         //文章地址
-        article.url = getMobileBlogUrl() + getArticleID(titleEle.select("a[href]").attr("href"));
+        article.url = getArticleUrl(getArticleID(titleEle.select("a[href]").attr("href")));
         //概要
         article.summary = element.getElementsByClass("article_description").first().text();
 
@@ -220,7 +218,44 @@ class BlogHtmlParser {
      * @param pageIndex
      * @return
      */
-    private String getArticleUrl(int pageIndex){
+    private String getArticlePageUrl(int pageIndex){
         return getBlogUrl() + "/article/list/" + (pageIndex + 1);
+    }
+
+    /**
+     * 获取博客文章ID对应的博客文章地址
+     * @param articleID
+     * @return
+     */
+    private String getArticleUrl(String articleID){
+        return getMobileBlogUrl() + articleID;
+    }
+
+    /**
+     * 对博客文章进行裁剪
+     * @param articleID
+     * @return
+     * @throws Exception
+     */
+    public String clipArticle(String articleID) throws Exception {
+        Document document = Jsoup.connect(getArticleUrl(articleID)).get();
+        //去掉博客文章头
+        document.getElementById("header").remove();
+        //去掉导航
+        document.getElementById("nav").remove();
+
+        Element topElement = document.getElementById("top");
+        //去掉栏目标题
+        topElement.getElementsByClass("avatar").first().remove();
+        //去掉上下页
+        topElement.getElementsByClass("next_page").first().remove();
+        //去掉[请先登录后，再发表评论！]
+        topElement.select("div.view").first().remove();
+        //去掉评论
+        topElement.select("div.comment_sub").first().remove();
+        //去掉底部
+        document.getElementById("ding1").remove();
+        document.getElementById("footer").remove();
+        return document.outerHtml();
     }
 }

@@ -8,13 +8,13 @@ public interface ArticleCategory {
     /**
      * 原创文章
      */
-    public static final int ORIGINAL = 1;
+    int ORIGINAL = 1;
     /**
      * 转载文章
      */
-    public static final int REPOST = 2;
+    int REPOST = 2;
     /**
      * 译文
      */
-    public static final int TRANSLATED =3;
+    int TRANSLATED =3;
 }
