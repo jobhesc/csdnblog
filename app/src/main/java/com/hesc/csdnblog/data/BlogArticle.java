@@ -27,7 +27,7 @@ public class BlogArticle extends BaseDaoEnabled implements ArticleCategory, Seri
     /**
      * 博主信息（外键）
      */
-    @DatabaseField(columnName = "blogger", foreign = true )
+    @DatabaseField(columnName = "blogger", foreign = true)
     public Blogger blogger;
     /**
      * 文章标题

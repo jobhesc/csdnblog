@@ -18,7 +18,7 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
     @InjectView(R.id.blog_article_list)
     RefreshableView mListView;
     private ArticleListAdapter mAdapter;
-    private boolean isFirstLoading = true;
+    private boolean isFirstLoading = true;  //是否第一次装载数据
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +27,10 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         //ActionBar只有标题栏
         getActionBarFacade().setBackActionBar();
         ButterKnife.inject(this);
+        if(savedInstanceState != null)
+            isFirstLoading = savedInstanceState.getBoolean("isFirstLoading");
+        else
+            isFirstLoading = true;
 
         Blogger blogger = (Blogger)getIntent().getSerializableExtra("blogger");
         setTitle(blogger.blogName);
@@ -34,11 +38,7 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         mListView.setAdapter(mAdapter);
         mAdapter.setDataLoadCallback(this);
         setListener();
-        loadData();
-    }
-
-    private void loadData(){
-        //从数据库装载数据
+        //装载数据
         mAdapter.loadNext();
     }
 
@@ -64,36 +64,46 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         });
     }
 
-    @Override
-    public void dataLoaded() {
+    /**
+     * 第一次进入时从网络装载数据
+     */
+    private void loadDataFromNetOnFirst(){
         if(isFirstLoading) {
             mListView.startRefresh();
             isFirstLoading = false;
-        } else {
-            //刷新数据成功
-            if (mListView.isRefreshing())
-                mListView.stopRefresh(true);
-            //加载更多成功
-            if (mListView.isLoadingMore())
-                mListView.stopLoadMore(true);
-
-            //如果数据已经加载完成，则隐藏加载更多
-            mListView.setFooterViewEnabled(!mAdapter.isEnd());
         }
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isFirstLoading", isFirstLoading);
+    }
+
+    @Override
+    public void dataLoaded() {
+        //刷新数据成功
+        if (mListView.isRefreshing())
+            mListView.stopRefresh(true);
+        //加载更多成功
+        if (mListView.isLoadingMore())
+            mListView.stopLoadMore(true);
+
+        //如果数据已经加载完成，则隐藏加载更多
+        mListView.setFooterViewEnabled(!mAdapter.isEnd());
+        //第一次进入时从网络装载数据
+        loadDataFromNetOnFirst();
+    }
+
+    @Override
     public void dataLoadFail() {
-        if(isFirstLoading) {
-            mListView.startRefresh();
-            isFirstLoading = false;
-        } else {
-            //刷新数据失败
-            if (mListView.isRefreshing())
-                mListView.stopRefresh(false);
-            //加载更多失败
-            if (mListView.isLoadingMore())
-                mListView.stopLoadMore(false);
-        }
+        //刷新数据失败
+        if (mListView.isRefreshing())
+            mListView.stopRefresh(false);
+        //加载更多失败
+        if (mListView.isLoadingMore())
+            mListView.stopLoadMore(false);
+        //第一次进入时从网络装载数据
+        loadDataFromNetOnFirst();
     }
 }

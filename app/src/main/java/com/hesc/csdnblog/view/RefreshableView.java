@@ -59,6 +59,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     private boolean isRefreshing = false;
     //是否正在加载更多
     private boolean isloadingMore = false;
+    //是否可以加载更多
+    private boolean isCanLoadMore = false;
     //原来表尾加载更多视图的启用状态
     private boolean mOldFooterEnabled = false;
 
@@ -185,6 +187,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
                 float delta = (ev.getY()-mTouchPointY)/3;
                 mTouchPointY = ev.getY();
 
+                //只有手指滑动时，才能进行加载更多操作
+                isCanLoadMore = !isRefreshing && !isloadingMore && delta<0;
                 //没有启用表头刷新视图，不处理
                 if(!mHeaderViewEnabled) break;
                 //如果不是向下拉，不处理
@@ -357,7 +361,7 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
             mOnScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
         }
 
-        if(firstVisibleItem + visibleItemCount>=totalItemCount){
+        if(firstVisibleItem + visibleItemCount>=totalItemCount && isCanLoadMore){
             startLoadMore();
         }
     }
@@ -366,8 +370,12 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     public void setOnItemClickListener(OnItemClickListener listener) {
         super.setOnItemClickListener((parent, view, position, id)->{
             if(getAdapter() instanceof HeaderViewListAdapter){
-                if(view == mHeadView) return;
-                if(view == mFootView) return;
+                HeaderViewListAdapter adapter = (HeaderViewListAdapter) getAdapter();
+                if (position < adapter.getHeadersCount()) return;
+
+                position -= adapter.getHeadersCount();
+                if (position >= adapter.getCount() - adapter.getHeadersCount() - adapter.getFootersCount())
+                    return;
             }
             if(listener != null){
                 listener.onItemClick(parent, view, position, id);
@@ -379,8 +387,12 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     public void setOnItemLongClickListener(OnItemLongClickListener listener) {
         super.setOnItemLongClickListener((parent, view, position, id)->{
             if(getAdapter() instanceof HeaderViewListAdapter){
-                if(view == mHeadView) return true;
-                if(view == mFootView) return true;
+                HeaderViewListAdapter adapter = (HeaderViewListAdapter) getAdapter();
+                if (position < adapter.getHeadersCount()) return false;
+
+                position -= adapter.getHeadersCount();
+                if (position >= adapter.getCount() - adapter.getHeadersCount() - adapter.getFootersCount())
+                    return false;
             }
             if(listener != null){
                 return listener.onItemLongClick(parent, view, position, id);

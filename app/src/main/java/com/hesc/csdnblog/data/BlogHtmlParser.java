@@ -17,32 +17,28 @@ class BlogHtmlParser {
     //博客的基地址
     private static final String BLOG_BASEURL="http://blog.csdn.net/";
     private static final String BLOG_BASEURL_MOBILE="http://m.blog.csdn.net/blog/";
-    //博客ID
-    private String mBlogID = null;
-
-    public BlogHtmlParser(String blogID){
-        mBlogID = blogID;
-    }
 
     /**
      * 获取博客地址
+     * @param blogID
      * @return
      */
-    public String getBlogUrl(){
-        return BLOG_BASEURL + mBlogID + "/";
+    public static String getBlogUrl(String blogID){
+        return BLOG_BASEURL + blogID + "/";
     }
 
     /**
      * 获取移动版博客地址
+     * @param blogID
      * @return
      */
-    public String getMobileBlogUrl(){
-        return BLOG_BASEURL_MOBILE + mBlogID + "/";
+    public static String getMobileBlogUrl(String blogID){
+        return BLOG_BASEURL_MOBILE + blogID + "/";
     }
     /**
      * 校验文档的合法性
      */
-    private void checkDocValidate(Document document)throws Exception{
+    private static void checkDocValidate(Document document)throws Exception{
         if(document == null){
             throw new Exception("mDocument为空异常！");
         }
@@ -57,7 +53,7 @@ class BlogHtmlParser {
      * @param pageInfo
      * @return
      */
-    private int parseArticlePageCount(String pageInfo){
+    private static int parseArticlePageCount(String pageInfo){
         int startIndex = pageInfo.indexOf("共");
         int endIndex = pageInfo.indexOf("页");
         return Integer.parseInt(pageInfo.substring(startIndex+1, endIndex));
@@ -65,14 +61,15 @@ class BlogHtmlParser {
 
     /**
      * 获取博客的DOM
+     * @param blogID
      * @throws Exception
      */
-    private Document obtainDocument() throws Exception{
-        if(TextUtils.isEmpty(mBlogID)){
+    private static Document obtainDocument(String blogID) throws Exception{
+        if(TextUtils.isEmpty(blogID)){
             throw new Exception("博客ID不能为空！");
         }
 
-        Document document = Jsoup.connect(getBlogUrl()).get();
+        Document document = Jsoup.connect(getBlogUrl(blogID)).get();
         //校验文档的合法性
         checkDocValidate(document);
 
@@ -81,12 +78,13 @@ class BlogHtmlParser {
 
     /**
      * 解析博客文章
+     * @param blogID
      * @return
      * @throws Exception
      */
-    public List<BlogArticle> parseArticles() throws Exception {
+    public static List<BlogArticle> parseArticles(String blogID) throws Exception {
         //获取博客的DOM
-        Document document = obtainDocument();
+        Document document = obtainDocument(blogID);
 
         List<BlogArticle> articles = new ArrayList<>();
         //获取博客文章页码数
@@ -96,7 +94,7 @@ class BlogHtmlParser {
         if(pageCount == 0) return articles;
 
         for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
-            String pageUrl = getArticlePageUrl(pageIndex);
+            String pageUrl = getArticlePageUrl(blogID, pageIndex);
             Document articleDoc = Jsoup.connect(pageUrl).get();
             Elements articleEles = articleDoc.getElementById("article_list").children();
 
@@ -104,7 +102,7 @@ class BlogHtmlParser {
             BlogArticle article = null;
             for (int i = 0; i < count; i++) {
                 //根据html元素解析博客文章,返回博客文章实体
-                article = parseArticle(articleEles.get(i));
+                article = parseArticle(blogID, articleEles.get(i));
                 articles.add(article);
             }
         }
@@ -113,10 +111,11 @@ class BlogHtmlParser {
 
     /**
      * 解析博主信息
+     * @param blogID
      */
-    public Blogger parseBlogger() throws Exception{
+    public static Blogger parseBlogger(String blogID) throws Exception{
         //获取博客的DOM
-        Document document = obtainDocument();
+        Document document = obtainDocument(blogID);
 
         Blogger blogger = new Blogger();
         Element profileEle = document.getElementById("panel_Profile");
@@ -153,26 +152,27 @@ class BlogHtmlParser {
         //评论数量
         blogger.commentCount = statEles.get(3).text();
         //博客ID
-        blogger.blogID = mBlogID;
+        blogger.blogID = blogID;
         //博客地址
-        blogger.url = getBlogUrl();
+        blogger.url = getBlogUrl(blogID);
 
         return blogger;
     }
 
     /**
      * 根据html元素解析博客文章
+     * @param blogID
      * @param element
      * @return
      */
-    private BlogArticle parseArticle(Element element){
+    private static BlogArticle parseArticle(String blogID, Element element){
         BlogArticle article = new BlogArticle();
 
         Element titleEle = element.getElementsByClass("article_title").first();
         //文章标题
         article.title = titleEle.select("a[href]").first().text();
         //文章地址
-        article.url = getArticleUrl(getArticleID(titleEle.select("a[href]").attr("href")));
+        article.url = getArticleUrl(blogID, getArticleID(titleEle.select("a[href]").attr("href")));
         //概要
         article.summary = element.getElementsByClass("article_description").first().text();
 
@@ -194,14 +194,14 @@ class BlogHtmlParser {
      * @param href
      * @return
      */
-    private String getArticleID(String href){
+    private static String getArticleID(String href){
         //地址一般为"/XXXX/article/details/26365913"，需要把26365913截取出来
         int index = href.lastIndexOf("/");
         return href.substring(index+1, href.length());
 
     }
 
-    private int getArticleCategory(Element titleEle) {
+    private static int getArticleCategory(Element titleEle) {
         String c = titleEle.select("div > span:first-child").first().attr("class");
         if("ico ico_type_Translated".equals(c))
             return BlogArticle.TRANSLATED;  //译文
@@ -215,30 +215,32 @@ class BlogHtmlParser {
 
     /**
      * 获取指定页码的博客文章地址
+     * @param blogID
      * @param pageIndex
      * @return
      */
-    private String getArticlePageUrl(int pageIndex){
-        return getBlogUrl() + "/article/list/" + (pageIndex + 1);
+    private static String getArticlePageUrl(String blogID, int pageIndex){
+        return getBlogUrl(blogID) + "/article/list/" + (pageIndex + 1);
     }
 
     /**
      * 获取博客文章ID对应的博客文章地址
+     * @param blogID
      * @param articleID
      * @return
      */
-    private String getArticleUrl(String articleID){
-        return getMobileBlogUrl() + articleID;
+    private static String getArticleUrl(String blogID, String articleID){
+        return getMobileBlogUrl(blogID) + articleID;
     }
 
     /**
      * 对博客文章进行裁剪
-     * @param articleID
+     * @param articleUrl
      * @return
      * @throws Exception
      */
-    public String clipArticle(String articleID) throws Exception {
-        Document document = Jsoup.connect(getArticleUrl(articleID)).get();
+    public static String clipArticle(String articleUrl) throws Exception {
+        Document document = Jsoup.connect(articleUrl).get();
         //去掉博客文章头
         document.getElementById("header").remove();
         //去掉导航

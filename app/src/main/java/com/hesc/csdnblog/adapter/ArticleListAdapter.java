@@ -89,8 +89,8 @@ public class ArticleListAdapter extends BaseListAdapter<BlogArticle> {
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         r -> {
                             if (r != null) {
-                                mDatas.addAll(r);
                                 reset();
+                                mDatas.addAll(r);
                                 setState(r.size());
                                 notifyDataSetChanged();
                             }

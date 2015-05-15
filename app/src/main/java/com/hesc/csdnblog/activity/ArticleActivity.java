@@ -12,12 +12,14 @@ import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.adapter.ArticleListAdapter;
 import com.hesc.csdnblog.base.BaseActivity;
 import com.hesc.csdnblog.data.BlogArticle;
+import com.hesc.csdnblog.data.BlogProvider;
 import com.hesc.csdnblog.data.Blogger;
 import com.hesc.csdnblog.data.DataloadCallback;
 import com.hesc.csdnblog.view.RefreshableView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class ArticleActivity extends BaseActivity {
     @InjectView(R.id.article_view)
@@ -30,14 +32,34 @@ public class ArticleActivity extends BaseActivity {
         //ActionBar只有标题栏
         getActionBarFacade().setBackActionBar();
         ButterKnife.inject(this);
-
+        //配置webview
+        configWebView();
         BlogArticle article = (BlogArticle)getIntent().getSerializableExtra("article");
         setTitle(article.title);
-
-        configWebView(article);
+        //装载数据
+        loadData(article);
     }
 
-    private void configWebView(BlogArticle article){
+    /**
+     * 加载博客文章内容，并显示出来
+     * @param article
+     */
+    private void loadData(BlogArticle article){
+        showWaitingProgress();
+        safeSubscription(BlogProvider.getInstance().loadArticleContent(article.url)
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(
+                        r->{
+                            hideWaitingProgress();
+                            mWebView.loadData(r, "text/html; charset=utf-8", null);
+                        },
+                        e->{
+                            hideWaitingProgress();
+                            showToast(e.getMessage());
+                        }
+                ));
+    }
+
+    private void configWebView(){
         //启用js脚本
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient(){
@@ -65,7 +87,5 @@ public class ArticleActivity extends BaseActivity {
                 return super.onJsPrompt(view, url, message, defaultValue, result);
             }
         });
-
-        mWebView.loadUrl(article.url);
     }
 }
