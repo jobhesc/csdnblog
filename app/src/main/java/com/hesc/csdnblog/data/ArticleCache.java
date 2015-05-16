@@ -9,16 +9,13 @@ import com.hesc.csdnblog.application.MyApplication;
 import com.squareup.okhttp.internal.DiskLruCache;
 import com.squareup.okhttp.internal.io.FileSystem;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import okio.Buffer;
-import okio.ByteString;
 import okio.Sink;
 import okio.Source;
 

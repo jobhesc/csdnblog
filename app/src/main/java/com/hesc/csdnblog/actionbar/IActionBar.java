@@ -1,6 +1,7 @@
 package com.hesc.csdnblog.actionbar;
 
 import android.graphics.drawable.Drawable;
+import android.view.MenuItem;
 import android.view.View;
 
 /**
@@ -95,4 +96,28 @@ public interface IActionBar {
      * @return
      */
     View getActionView();
+
+    /**
+     * 获取菜单布局资源ID
+     * @return
+     */
+    int getMenuLayout();
+    /**
+     * 设置菜单布局资源ID
+     * @param menuLayoutResId
+     * @return
+     */
+    IActionBar setMenuLayout(int menuLayoutResId);
+
+    /**
+     * 获取菜单点击事件回调
+     * @return
+     */
+    MenuItem.OnMenuItemClickListener getMenuItemClickListener();
+    /**
+     * 设置菜单点击事件回调
+     * @param listener
+     * @return
+     */
+    IActionBar setMenuItemClickListener(MenuItem.OnMenuItemClickListener listener);
 }

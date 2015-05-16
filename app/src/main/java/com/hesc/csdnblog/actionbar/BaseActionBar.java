@@ -3,6 +3,7 @@ package com.hesc.csdnblog.actionbar;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -66,6 +67,14 @@ class BaseActionBar implements IActionBar{
      * 右边按钮点击回调事件
      */
     private View.OnClickListener mRightButtonClickListener;
+    /**
+     * 菜单资源布局ID
+     */
+    private int mMenuLayoutResId;
+    /**
+     * 菜单项点击事件回调
+     */
+    private MenuItem.OnMenuItemClickListener mMenuItemClickListener;
 
     public BaseActionBar(Context context){
         mContext = context;
@@ -140,6 +149,28 @@ class BaseActionBar implements IActionBar{
     @Override
     public View getActionView() {
         return mActionView;
+    }
+
+    @Override
+    public int getMenuLayout() {
+        return mMenuLayoutResId;
+    }
+
+    @Override
+    public IActionBar setMenuLayout(int menuLayoutResId) {
+        this.mMenuLayoutResId = menuLayoutResId;
+        return this;
+    }
+
+    @Override
+    public MenuItem.OnMenuItemClickListener getMenuItemClickListener() {
+        return mMenuItemClickListener;
+    }
+
+    @Override
+    public IActionBar setMenuItemClickListener(MenuItem.OnMenuItemClickListener listener) {
+        this.mMenuItemClickListener = listener;
+        return this;
     }
 
     @OnClick(R.id.actionbar_left_button)

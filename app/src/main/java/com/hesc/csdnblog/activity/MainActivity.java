@@ -2,6 +2,7 @@ package com.hesc.csdnblog.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.internal.view.menu.MenuBuilder;
 
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.adapter.BloggerListAdapter;
@@ -10,8 +11,6 @@ import com.hesc.csdnblog.data.Blogger;
 import com.hesc.csdnblog.data.DataloadCallback;
 import com.hesc.csdnblog.data.InitLoader;
 import com.hesc.csdnblog.view.RefreshableView;
-
-import java.io.Serializable;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -35,6 +34,7 @@ public class MainActivity extends BaseActivity {
         mListView.setAdapter(mAdapter);
         setListener();
         loadData();
+
     }
 
     private void loadData(){

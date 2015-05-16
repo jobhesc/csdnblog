@@ -1,6 +1,5 @@
 package com.hesc.csdnblog.activity;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -9,13 +8,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.hesc.csdnblog.R;
-import com.hesc.csdnblog.adapter.ArticleListAdapter;
 import com.hesc.csdnblog.base.BaseActivity;
 import com.hesc.csdnblog.data.BlogArticle;
 import com.hesc.csdnblog.data.BlogProvider;
-import com.hesc.csdnblog.data.Blogger;
-import com.hesc.csdnblog.data.DataloadCallback;
-import com.hesc.csdnblog.view.RefreshableView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
