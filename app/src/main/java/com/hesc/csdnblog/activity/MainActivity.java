@@ -2,6 +2,7 @@ package com.hesc.csdnblog.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.internal.view.menu.MenuBuilder;
 
 import com.hesc.csdnblog.R;
 import com.hesc.csdnblog.adapter.BloggerListAdapter;
@@ -33,6 +34,7 @@ public class MainActivity extends BaseActivity {
         mListView.setAdapter(mAdapter);
         setListener();
         loadData();
+
     }
 
     private void loadData(){
