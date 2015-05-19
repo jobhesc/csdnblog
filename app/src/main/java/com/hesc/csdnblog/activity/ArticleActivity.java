@@ -50,7 +50,7 @@ public class ArticleActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(
                         r->{
                             hideWaitingProgress();
-                            mWebView.loadData(r, "text/html; charset=utf-8", null);
+                            mWebView.loadDataWithBaseURL(article.url, r, "text/html", "utf-8", article.url);
                         },
                         e->{
                             hideWaitingProgress();

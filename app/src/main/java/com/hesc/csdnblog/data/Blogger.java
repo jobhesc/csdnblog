@@ -21,16 +21,10 @@ public class Blogger extends BaseDaoEnabled implements Serializable {
     Blogger(Dao dao){
         super.setDao(dao);
     }
-
-    /**
-     * ID字段
-     */
-    @DatabaseField(columnName = "id", generatedId = true)
-    public long id;
     /**
      * 博客ID
      */
-    @DatabaseField(columnName = "blog_id", uniqueIndex = true)
+    @DatabaseField(columnName = "blog_id", id = true)
     public String blogID;
     /**
      * 博客编码
@@ -105,6 +99,6 @@ public class Blogger extends BaseDaoEnabled implements Serializable {
     /**
      * 博客文章
      */
-    @ForeignCollectionField(columnName = "articles",orderColumnName = "id", orderAscending = false)
+    @ForeignCollectionField(columnName = "articles",orderColumnName = "article_id", orderAscending = false)
     public ForeignCollection<BlogArticle> articles;
 }

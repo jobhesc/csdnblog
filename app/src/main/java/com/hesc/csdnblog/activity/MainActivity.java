@@ -44,15 +44,18 @@ public class MainActivity extends BaseActivity {
             mAdapter.loadAllFromDB();
         } else {
             //进行初始化数据操作
+            showWaitingProgress();
             InitLoader.getInstance().execute(new DataloadCallback() {
                 @Override
                 public void dataLoaded() {
                     mAdapter.loadAllFromDB();
+                    hideWaitingProgress();
                 }
 
                 @Override
                 public void dataLoadFail() {
-
+                    mAdapter.loadAllFromDB();
+                    hideWaitingProgress();
                 }
             });
         }

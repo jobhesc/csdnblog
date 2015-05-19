@@ -32,7 +32,7 @@ public class BloggerListAdapter extends BaseListAdapter<Blogger> {
      * 对博主信息按照博主ID进行排序
      */
     private void sortBloggers(){
-        Collections.sort(mDatas, (lhs, rhs) -> Long.valueOf(lhs.id).compareTo(rhs.id));
+        Collections.sort(mDatas, (lhs, rhs) -> lhs.blogID.compareTo(rhs.blogID));
     }
 
     /**

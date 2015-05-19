@@ -77,14 +77,6 @@ class BlogDBHelper {
     }
 
     /**
-     * 插入博主信息
-     * @param blogger
-     */
-    public void insertBlogger(Blogger blogger){
-        mRuntimeBloggerDAO.create(blogger);
-    }
-
-    /**
      * 当数据库没有该记录时插入博主信息，否则更新
      * @param blogger
      */
@@ -93,17 +85,17 @@ class BlogDBHelper {
     }
 
     /**
-     * 批量插入博主信息
+     * 批量插入或更新博主信息
      * @param bloggers
      */
-    public void insertBloggers(List<Blogger> bloggers){
+    public void insertOrUpdateBloggers(List<Blogger> bloggers){
         if(bloggers == null || bloggers.size() == 0) return;
 
         mRuntimeBloggerDAO.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 for (Blogger blogger : bloggers) {
-                    mRuntimeBloggerDAO.create(blogger);
+                    mRuntimeBloggerDAO.createOrUpdate(blogger);
                 }
                 return null;
             }
@@ -137,40 +129,6 @@ class BlogDBHelper {
     }
 
     /**
-     * 更新博主信息
-     * @param blogger
-     */
-    public void updateBlogger(Blogger blogger){
-        mRuntimeBloggerDAO.update(blogger);
-    }
-
-    /**
-     * 批量更新博主信息
-     * @param bloggers
-     */
-    public void updateBloggers(List<Blogger> bloggers){
-        if(bloggers == null || bloggers.size() == 0) return;
-
-        mRuntimeBloggerDAO.callBatchTasks(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (Blogger blogger : bloggers) {
-                    mRuntimeBloggerDAO.update(blogger);
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
-     * 插入博客文章
-     * @param article
-     */
-    public void insertArticle(BlogArticle article){
-        mRuntimeBlogArticleDAO.create(article);
-    }
-
-    /**
      * 当数据库没有该记录时插入博客文章，否则更新
      * @param article
      */
@@ -179,43 +137,17 @@ class BlogDBHelper {
     }
 
     /**
-     * 批量插入博客文章
+     * 批量插入或更新博客文章
      * @param articles
      */
-    public void insertArticles(List<BlogArticle> articles){
+    public void insertOrUpdateArticles(List<BlogArticle> articles){
         if(articles == null || articles.size() == 0) return;
 
         mRuntimeBlogArticleDAO.callBatchTasks(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 for (BlogArticle article : articles) {
-                    mRuntimeBlogArticleDAO.create(article);
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
-     * 更新博客文章
-     * @param article
-     */
-    public void updateArticle(BlogArticle article){
-        mRuntimeBlogArticleDAO.update(article);
-    }
-
-    /**
-     * 批量更新博客文章
-     * @param articles
-     */
-    public void updateArticles(List<BlogArticle> articles){
-        if(articles == null || articles.size() == 0) return;
-
-        mRuntimeBlogArticleDAO.callBatchTasks(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (BlogArticle article : articles) {
-                    mRuntimeBlogArticleDAO.update(article);
+                    mRuntimeBlogArticleDAO.createOrUpdate(article);
                 }
                 return null;
             }
@@ -255,7 +187,7 @@ class BlogDBHelper {
     public void deleteArticles(Blogger blogger){
         DeleteBuilder<BlogArticle, ?> deleteBuilder = mRuntimeBlogArticleDAO.deleteBuilder();
         try {
-            deleteBuilder.where().eq("blogger", blogger.id);
+            deleteBuilder.where().eq("blogger", blogger.blogID);
             deleteBuilder.delete();
         } catch (SQLException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -303,7 +235,7 @@ class BlogDBHelper {
      * @return
      */
     public List<BlogArticle> findArticles(Blogger blogger){
-        return mRuntimeBlogArticleDAO.queryForEq("blogger", blogger.id);
+        return mRuntimeBlogArticleDAO.queryForEq("blogger", blogger.blogID);
     }
 
     /**
@@ -316,8 +248,8 @@ class BlogDBHelper {
     public List<BlogArticle> findArticlesByPaging(Blogger blogger, int offset, int limit){
         QueryBuilder<BlogArticle, ?> builder = mRuntimeBlogArticleDAO.queryBuilder();
         try {
-            return builder.offset((long)offset).limit((long)limit).orderBy("id", true)
-                    .where().eq("blogger", blogger.id).query();
+            return builder.offset((long)offset).limit((long)limit).orderBy("update_on", false)
+                    .where().eq("blogger", blogger.blogID).query();
         } catch (SQLException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             return null;

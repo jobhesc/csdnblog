@@ -128,7 +128,7 @@ public class BlogProvider {
             //删除原数据库中所有该博主对应的文章
             mDBHelper.deleteArticles(blogger);
             //保存最新的博客文章信息到数据库
-            mDBHelper.insertArticles(articles);
+            mDBHelper.insertOrUpdateArticles(articles);
             //从数据库重新查找博客文章
             articles = mDBHelper.findArticlesByPaging(blogger, startIndex, requestLen);
             return articles;
@@ -158,7 +158,7 @@ public class BlogProvider {
             Blogger blogger = BlogHtmlParser.parseBlogger(blogID);
             //保存最新的博主信息到数据库
             if(blogger != null){
-                mDBHelper.insertBlogger(blogger);
+                mDBHelper.insertOrUpdateBlogger(blogger);
             }
             return blogger;
         });
@@ -189,7 +189,7 @@ public class BlogProvider {
                 }
             }
             //保存最新的博主信息到数据库
-            mDBHelper.insertBloggers(results);
+            mDBHelper.insertOrUpdateBloggers(results);
             return results;
         });
     }

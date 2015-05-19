@@ -22,8 +22,8 @@ public class BlogArticle extends BaseDaoEnabled implements ArticleCategory, Seri
     /**
      * ID字段
      */
-    @DatabaseField(columnName = "id", generatedId = true)
-    public long id;
+    @DatabaseField(columnName = "article_id", id = true)
+    public String article_id;
     /**
      * 博主信息（外键）
      */
