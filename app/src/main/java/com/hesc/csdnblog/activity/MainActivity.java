@@ -11,8 +11,6 @@ import com.hesc.csdnblog.data.DataloadCallback;
 import com.hesc.csdnblog.data.InitLoader;
 import com.hesc.csdnblog.view.RefreshableView;
 
-import java.io.Serializable;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
