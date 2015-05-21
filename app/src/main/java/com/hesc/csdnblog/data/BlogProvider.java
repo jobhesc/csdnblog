@@ -23,10 +23,6 @@ public class BlogProvider {
         T call() throws Exception;
     }
 
-    interface ProviderFail<T>{
-        T call();
-    }
-
     private static final String LOG_TAG=BlogProvider.class.getName();
 
     private Context mContext = null;
@@ -53,22 +49,16 @@ public class BlogProvider {
         return instance;
     }
 
-    private <T> Observable<T> createAsyncObservable(Executor executor, ProviderAction<T> action){
-        return createAsyncObservable(executor, action, null);
-    }
-
     /**
      * 创建异步的observale
      * @param executor
      * @param action
-     * @param fail
      * @param <T>
      * @return
      */
-    private <T> Observable<T> createAsyncObservable(Executor executor, ProviderAction<T> action,
-                                                    ProviderFail<T> fail){
+    private <T> Observable<T> createAsyncObservable(Executor executor, ProviderAction<T> action){
         return Observable.create(subscriber -> {
-            Runnable runnable = getRunnable(subscriber, action, fail);
+            Runnable runnable = getRunnable(subscriber, action);
             FutureTask<Void> task = new FutureTask<Void>(runnable, null);
             subscriber.add(Subscriptions.from(task));
             executor.execute(task);
@@ -79,31 +69,27 @@ public class BlogProvider {
      * 获取代码执行段
      * @param subscriber
      * @param action
-     * @param fail
      * @param <T>
      * @return
      */
     private <T> Runnable getRunnable(final Subscriber<? super T> subscriber,
-                                     ProviderAction<T> action, ProviderFail<T> fail){
+                                     ProviderAction<T> action){
         return ()->{
             try {
-                if (subscriber.isUnsubscribed()) {
-                    return;
-                }
+                if (subscriber.isUnsubscribed()) return;
+
                 T result = null;
                 if(action != null)
                     result = action.call();
-                subscriber.onNext(result);
-                subscriber.onCompleted();
-            } catch (Exception e) {
-                if(fail != null) {
-                    T result = fail.call();
-                    if(result != null) {
-                        subscriber.onNext(result);
-                        subscriber.onCompleted();
-                    }
+
+                if(!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(result);
+                    subscriber.onCompleted();
                 }
-                subscriber.onError(e);
+            } catch (Exception e) {
+                if(!subscriber.isUnsubscribed()) {
+                    subscriber.onError(e);
+                }
             }
         };
     }
@@ -215,9 +201,8 @@ public class BlogProvider {
                     //保存到缓存中
                     ArticleCache.getInstance().put(articleUrl, articleContent);
                     return articleContent;
-                },
+                }).onErrorResumeNext(
                 //从网络加载失败后，就从缓存中加载
-                ()->ArticleCache.getInstance().get(articleUrl)
-        );
+                createAsyncObservable(httpExecutor, ()->ArticleCache.getInstance().get(articleUrl)));
     }
 }
