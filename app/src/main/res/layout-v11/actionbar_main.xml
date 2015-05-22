@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:gravity="center_vertical"
-    style="?attr/actionBarStyle">
+    style="?android:attr/actionBarStyle">
 
     <ImageView android:id="@+id/actionbar_left_button"
         android:layout_width="50dp"

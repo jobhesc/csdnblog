@@ -57,11 +57,22 @@ class CompatPresenter extends BasePresenter {
         sysActionBar.setCustomView(getActionBar().getActionView());
     }
 
+    /**
+     * 隐藏ActionBar
+     */
+    private void hideActionBar(){
+        // requestWindowFeature隐藏ActionBar在android2.x版本居然失效??
+//        mActionBarActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        try{
+            getSysActionBar().hide();
+        } catch(Exception e){
+        }
+    }
+
     @Override
     public void showAsIndependent(View contentView, ViewGroup.LayoutParams layoutParams)  {
         //不显示系统标题栏
-        mActionBarActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+        hideActionBar();
         View decorView = mActionBarActivity.getLayoutInflater().inflate(R.layout.actionbar_decor, null);
         //自定义的Actionbar视图
         ViewGroup actionbarView = (ViewGroup)decorView.findViewById(R.id.actionbar_decor_bar);

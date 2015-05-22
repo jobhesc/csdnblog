@@ -14,6 +14,7 @@ import java.util.List;
 
 /**
  * Created by hesc on 15/4/22.
+ * 菜单实现类
  */
 class MenuImpl implements Menu{
     private Context context;

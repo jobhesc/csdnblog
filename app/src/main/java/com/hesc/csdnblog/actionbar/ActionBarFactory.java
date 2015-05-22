@@ -14,4 +14,13 @@ public class ActionBarFactory {
     public static IActionBar createCommonActionBar(Context context){
         return new CommonActionBar(context);
     }
+
+    /**
+     * 创建带菜单项的ActionBar
+     * @param context
+     * @return
+     */
+    public static IActionBar createMenuActionBar(Context context){
+        return new MenuActionBar(context);
+    }
 }

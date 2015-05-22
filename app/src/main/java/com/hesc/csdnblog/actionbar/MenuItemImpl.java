@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * Created by hesc on 15/4/22.
+ * 菜单项的实现类
  */
 class MenuItemImpl implements MenuItem{
     private MenuItem.OnMenuItemClickListener itemClickListener;

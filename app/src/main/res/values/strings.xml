@@ -15,6 +15,8 @@
     <string name="title_activity_blog">博客文章列表</string>
     <string name="title_activity_article">博客文章</string>
 
+    <string name="menu_settings">设置</string>
+
     <!--初始化博客ID-->
     <string-array name="init_blog_id">
         <item>Luoshengyang</item>

@@ -2,13 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    </style>
 
-    <style name="ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:textAppearance">@style/ActionBarTextAppearance</item>
-    </style>
-
-    <style name="ActionBarTextAppearance" parent="TextAppearance.AppCompat.Widget.Base.ActionBar.Title.Inverse">
     </style>
 
     <style name="waiting_progress_dialog" parent="@android:style/Theme.Dialog">

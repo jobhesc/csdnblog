@@ -2,9 +2,13 @@ package com.hesc.csdnblog.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.internal.view.menu.MenuBuilder;
+import android.view.MenuItem;
+import android.view.Window;
+import android.widget.Toast;
 
 import com.hesc.csdnblog.R;
+import com.hesc.csdnblog.actionbar.ActionBarFactory;
+import com.hesc.csdnblog.actionbar.IActionBar;
 import com.hesc.csdnblog.adapter.BloggerListAdapter;
 import com.hesc.csdnblog.base.BaseActivity;
 import com.hesc.csdnblog.data.Blogger;
@@ -15,8 +19,7 @@ import com.hesc.csdnblog.view.RefreshableView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements MenuItem.OnMenuItemClickListener {
     @InjectView(R.id.main_blogger)
     RefreshableView mListView;
 
@@ -27,14 +30,20 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //ActionBar只有标题栏
-        getActionBarFacade().setOnlyTitleActionBar();
+        getActionBarFacade().setBackExtActionBar();
+        getActionBarFacade().getActionBar().setMenuLayout(R.menu.menu_main);
+        getActionBarFacade().getActionBar().setMenuItemClickListener(this);
         ButterKnife.inject(this);
 
         mAdapter = new BloggerListAdapter(this);
         mListView.setAdapter(mAdapter);
         setListener();
         loadData();
+    }
 
+    @Override
+    public IActionBar createActionBar() {
+        return ActionBarFactory.createMenuActionBar(this);
     }
 
     private void loadData(){
@@ -73,5 +82,15 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         InitLoader.getInstance().cancel();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.menu_settings:
+                Toast.makeText(this, "测试设置功能", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return false;
     }
 }
