@@ -24,7 +24,6 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blog);
-        //ActionBar只有标题栏
         getActionBarFacade().setBackActionBar();
         ButterKnife.inject(this);
         if(savedInstanceState != null)
@@ -35,6 +34,7 @@ public class BlogActivity extends BaseActivity implements DataloadCallback {
         Blogger blogger = (Blogger)getIntent().getSerializableExtra("blogger");
         setTitle(blogger.blogName);
         mAdapter = new ArticleListAdapter(this, blogger);
+        mListView.setRefreshTAG(blogger.blogID);
         mListView.setAdapter(mAdapter);
         mAdapter.setDataLoadCallback(this);
         setListener();

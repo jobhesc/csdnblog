@@ -19,7 +19,6 @@
             android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,6 +29,9 @@
         <activity
             android:name=".activity.ArticleActivity"
             android:label="@string/title_activity_article" >
+        </activity>
+        <activity android:name=".activity.SearchActivity"
+            android:label="@string/title_activity_search">
         </activity>
     </application>
 

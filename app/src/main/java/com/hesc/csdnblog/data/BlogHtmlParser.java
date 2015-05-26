@@ -88,10 +88,12 @@ class BlogHtmlParser {
 
         List<BlogArticle> articles = new ArrayList<>();
         //获取博客文章页码数
+        int pageCount = 1;
         Element pageEle = document.getElementById("papelist");
-        String pageInfo = pageEle.getElementsByTag("span").first().text();
-        int pageCount = parseArticlePageCount(pageInfo);
-        if(pageCount == 0) return articles;
+        if (pageEle != null){
+            String pageInfo = pageEle.getElementsByTag("span").first().text();
+            pageCount = parseArticlePageCount(pageInfo);
+        }
 
         for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
             String pageUrl = getArticlePageUrl(blogID, pageIndex);

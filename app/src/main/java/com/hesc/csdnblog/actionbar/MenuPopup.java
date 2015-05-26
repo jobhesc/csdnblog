@@ -108,10 +108,11 @@ class MenuPopup {
         return mMenuItemClickListener;
     }
 
-    private void notifyMenuItemClick(MenuItem menuItem){
+    private boolean notifyMenuItemClick(MenuItem menuItem){
         if(mMenuItemClickListener != null){
-            mMenuItemClickListener.onMenuItemClick(menuItem);
+            return mMenuItemClickListener.onMenuItemClick(menuItem);
         }
+        return false;
     }
 
     /**
@@ -201,10 +202,15 @@ class MenuPopup {
     private AdapterView.OnItemClickListener mPopupItemClickListener = (parent, view, position, id)->{
         MenuItemImpl menuItem = (MenuItemImpl) mMenuAdapter.getItem(position);
         MenuItem.OnMenuItemClickListener listener = menuItem.getOnMenuItemClickListener();
+        boolean consumeClick = false;
         if(listener != null) {
-            listener.onMenuItemClick(menuItem);
+            consumeClick = listener.onMenuItemClick(menuItem);
         }
-        notifyMenuItemClick(menuItem);
+        if(!consumeClick)
+            consumeClick = notifyMenuItemClick(menuItem);
+
+        if(consumeClick)
+            dismiss();
     };
 
     private static class MenuResPolicy{

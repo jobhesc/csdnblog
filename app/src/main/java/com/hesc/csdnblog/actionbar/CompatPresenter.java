@@ -63,10 +63,8 @@ class CompatPresenter extends BasePresenter {
     private void hideActionBar(){
         // requestWindowFeature隐藏ActionBar在android2.x版本居然失效??
 //        mActionBarActivity.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        try{
+        if(getSysActionBar() != null)
             getSysActionBar().hide();
-        } catch(Exception e){
-        }
     }
 
     @Override

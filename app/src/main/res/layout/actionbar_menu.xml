@@ -5,7 +5,8 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:minWidth="196dip"
     android:paddingRight="16dip"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="?attr/actionBarItemBackground">
 
     <ImageView
         android:id="@+id/icon"

@@ -14,8 +14,18 @@
 
     <string name="title_activity_blog">博客文章列表</string>
     <string name="title_activity_article">博客文章</string>
+    <string name="title_activity_search">搜索</string>
 
+    <string name="menu_add_blogger">添加博客</string>
     <string name="menu_settings">设置</string>
+    <string name="menu_about">关于</string>
+    
+    <string name="dialog_cancel">取消</string>
+    <string name="dialog_ok">确定</string>
+
+    <string name="title_add_blog">添加博客</string>
+    <string name="desc_add_blog">请在下面输入要添加的博客ID，例如：博客地址为“http://blog.csdn.net/smile2011”,那么“smile2011”就是博客ID</string>
+    <string name="hint_input_blog">请输入博客ID</string>
 
     <!--初始化博客ID-->
     <string-array name="init_blog_id">
@@ -25,5 +35,8 @@
         <item>lmj623565791</item>
         <item>u013357243</item>
         <item>huangyanan1989</item>
+        <item>ljx19900116</item>
+        <item>xyz_lmn</item>
+        <item>bbld_</item>
     </string-array>
 </resources>

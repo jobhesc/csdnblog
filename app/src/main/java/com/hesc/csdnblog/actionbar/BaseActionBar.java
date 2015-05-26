@@ -29,10 +29,15 @@ class BaseActionBar implements IActionBar{
     @InjectView(R.id.actionbar_left_button)
     protected ImageView mLeftButtonView;
     /**
-     * ActionBar右边按钮视图
+     * ActionBar右边按钮1视图
      */
-    @InjectView(R.id.actionbar_right_button)
-    protected ImageView mRightButtonView;
+    @InjectView(R.id.actionbar_right_button1)
+    protected ImageView mRightButton1View;
+    /**
+     * ActionBar右边按钮2视图
+     */
+    @InjectView(R.id.actionbar_right_button2)
+    protected ImageView mRightButton2View;
     /**
      * ActionBar分割线视图
      */
@@ -56,17 +61,25 @@ class BaseActionBar implements IActionBar{
      */
     protected Drawable mLeftButtonDrawable;
     /**
-     * 右边按钮图标
+     * 右边按钮1图标
      */
-    protected Drawable mRightButtonDrawable;
+    protected Drawable mRightButton1Drawable;
+    /**
+     * 右边按钮2图标
+     */
+    protected Drawable mRightButton2Drawable;
     /**
      * 左边按钮点击回调事件
      */
     private View.OnClickListener mLeftButtonClickListener;
     /**
-     * 右边按钮点击回调事件
+     * 右边按钮1点击回调事件
      */
-    private View.OnClickListener mRightButtonClickListener;
+    private View.OnClickListener mRightButton1ClickListener;
+    /**
+     * 右边按钮2点击回调事件
+     */
+    private View.OnClickListener mRightButton2ClickListener;
     /**
      * 菜单资源布局ID
      */
@@ -118,20 +131,37 @@ class BaseActionBar implements IActionBar{
     }
 
     @Override
-    public Drawable getRightButtonDrawable() {
-        return mRightButtonDrawable;
+    public Drawable getRightButton1Drawable() {
+        return mRightButton1Drawable;
     }
 
     @Override
-    public IActionBar setRightButtonDrawable(Drawable drawable) {
-        mRightButtonDrawable = drawable;
-        mRightButtonView.setImageDrawable(drawable);
+    public IActionBar setRightButton1Drawable(Drawable drawable) {
+        mRightButton1Drawable = drawable;
+        mRightButton1View.setImageDrawable(drawable);
         return this;
     }
 
     @Override
-    public IActionBar setRightButtonImageResource(int resID) {
-        return setRightButtonDrawable(mContext.getResources().getDrawable(resID));
+    public IActionBar setRightButton1ImageResource(int resID) {
+        return setRightButton1Drawable(mContext.getResources().getDrawable(resID));
+    }
+
+    @Override
+    public Drawable getRightButton2Drawable() {
+        return mRightButton2Drawable;
+    }
+
+    @Override
+    public IActionBar setRightButton2Drawable(Drawable drawable) {
+        mRightButton2Drawable = drawable;
+        mRightButton2View.setImageDrawable(drawable);
+        return this;
+    }
+
+    @Override
+    public IActionBar setRightButton2ImageResource(int resID) {
+        return setRightButton2Drawable(mContext.getResources().getDrawable(resID));
     }
 
     @Override
@@ -141,8 +171,14 @@ class BaseActionBar implements IActionBar{
     }
 
     @Override
-    public IActionBar setOnRightButtonClickListener(View.OnClickListener listener) {
-        mRightButtonClickListener = listener;
+    public IActionBar setOnRightButton1ClickListener(View.OnClickListener listener) {
+        mRightButton1ClickListener = listener;
+        return this;
+    }
+
+    @Override
+    public IActionBar setOnRightButton2ClickListener(View.OnClickListener listener) {
+        mRightButton2ClickListener = listener;
         return this;
     }
 
@@ -178,9 +214,14 @@ class BaseActionBar implements IActionBar{
         notifyLeftButtonClick();
     }
 
-    @OnClick(R.id.actionbar_right_button)
-    protected void onRightButtonClick(View view){
-        notifyRightButtonClick();
+    @OnClick(R.id.actionbar_right_button1)
+    protected void onRightButton1Click(View view){
+        notifyRightButton1Click();
+    }
+
+    @OnClick(R.id.actionbar_right_button2)
+    protected void onRightButton2Click(View view){
+        notifyRightButton2Click();
     }
 
     /**
@@ -193,11 +234,20 @@ class BaseActionBar implements IActionBar{
     }
 
     /**
-     * 右边按钮点击时通知外部回调事件
+     * 右边按钮1点击时通知外部回调事件
      */
-    protected void notifyRightButtonClick(){
-        if(mRightButtonClickListener != null){
-            mRightButtonClickListener.onClick(mRightButtonView);
+    protected void notifyRightButton1Click(){
+        if(mRightButton1ClickListener != null){
+            mRightButton1ClickListener.onClick(mRightButton1View);
+        }
+    }
+
+    /**
+     * 右边按钮2点击时通知外部回调事件
+     */
+    protected void notifyRightButton2Click(){
+        if(mRightButton2ClickListener != null){
+            mRightButton2ClickListener.onClick(mRightButton2View);
         }
     }
 
@@ -212,13 +262,19 @@ class BaseActionBar implements IActionBar{
         return this;
     }
 
+    @Override
+    public IActionBar setRightButton1Visible(boolean visible) {
+        mRightButton1View.setVisibility(visible ? View.VISIBLE : View.GONE);
+        return this;
+    }
+
     /**
      * 设置右边按钮的可见性
      * @param visible
      * @return
      */
-    public IActionBar setRightButtonVisible(boolean visible){
-        mRightButtonView.setVisibility(visible?View.VISIBLE:View.GONE);
+    public IActionBar setRightButton2Visible(boolean visible){
+        mRightButton2View.setVisibility(visible ? View.VISIBLE : View.GONE);
         return this;
     }
 

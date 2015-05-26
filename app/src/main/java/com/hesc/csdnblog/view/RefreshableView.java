@@ -63,6 +63,8 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     private boolean isCanLoadMore = false;
     //原来表尾加载更多视图的启用状态
     private boolean mOldFooterEnabled = false;
+    //刷新数据的tag，便于标识刷新时间
+    private String mRefreshTAG = "default_refresh_tag";
 
     public RefreshableView(Context context){
         super(context);
@@ -316,6 +318,24 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
     }
 
     /**
+     * 获取刷新数据的唯一标识
+     * @return
+     */
+    public String getRefreshTAG(){
+        return mRefreshTAG;
+    }
+
+    /**
+     * 设置刷新数据的唯一标识，便于保存刷新数据的时间
+     * @param refreshTAG
+     */
+    public void setRefreshTAG(String refreshTAG){
+        mRefreshTAG = refreshTAG;
+        if(mHeadView != null && mHeaderViewEnabled)
+            mHeadView.updateLastUpdateTime();
+    }
+
+    /**
      * 使用Scroller且开始执行滚动后，使用scroller的值更新表头的可见高度
      */
     @Override
@@ -497,8 +517,6 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         private void initData(){
             //状态保存文件
             pref = getContext().getSharedPreferences(REFRESH_PREF, Context.MODE_PRIVATE);
-            //获取上次更新时间
-            mLastUpdateTime = getLastUpdateTime();
             //初始状态=空
             mState = HeadRefreshState.Empty;
             //向上翻转动画
@@ -508,6 +526,7 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
             mRotateUpAnim.setDuration(200);
 
             mLoadHeight = (int)(getResources().getDisplayMetrics().density * 50 + 0.5f);
+            updateLastUpdateTime();
         }
 
         /**
@@ -591,20 +610,16 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
         }
 
         /**
-         * 获取上次更新时间
+         * 更新刷新时间
          * @return
          */
-        private String getLastUpdateTime(){
-            String updateTime = pref.getString(getPrefUpdateOnName(),"");
+        void updateLastUpdateTime(){
+            String updateTime = pref.getString(mRefreshTAG,"");
             if(TextUtils.isEmpty(updateTime))
-                return getResources().getString(R.string.refreshable_head_update_init);
+                mLastUpdateTime = getResources().getString(R.string.refreshable_head_update_init);
             else {
-                return getResources().getString(R.string.refreshable_head_update_time) + updateTime;
+                mLastUpdateTime = getResources().getString(R.string.refreshable_head_update_time) + updateTime;
             }
-        }
-
-        private String getPrefUpdateOnName(){
-            return "update_time_" + getContext().getClass().getName();
         }
 
         /**
@@ -614,9 +629,9 @@ public class RefreshableView extends ListView implements AbsListView.OnScrollLis
             Date date = Calendar.getInstance(Locale.getDefault()).getTime();
             SimpleDateFormat format = new SimpleDateFormat("MM月dd日 HH:mm");
             String updateTime = format.format(date);
-            pref.edit().putString(getPrefUpdateOnName(), updateTime).commit();
+            pref.edit().putString(mRefreshTAG, updateTime).commit();
 
-            mLastUpdateTime = getLastUpdateTime();
+            updateLastUpdateTime();
         }
     }
 
