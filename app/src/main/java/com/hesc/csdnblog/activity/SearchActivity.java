@@ -1,35 +1,37 @@
 package com.hesc.csdnblog.activity;
 
-import android.content.Intent;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SearchViewCompat;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
 
 import com.hesc.csdnblog.R;
-import com.hesc.csdnblog.actionbar.ActionBarFactory;
+import com.hesc.csdnblog.actionbar.ActionBarShowMode;
 import com.hesc.csdnblog.actionbar.IActionBar;
-import com.hesc.csdnblog.adapter.BloggerListAdapter;
 import com.hesc.csdnblog.base.BaseActivity;
-import com.hesc.csdnblog.data.Blogger;
-import com.hesc.csdnblog.data.DataloadCallback;
-import com.hesc.csdnblog.data.InitLoader;
-import com.hesc.csdnblog.dialog.MessageBox;
-import com.hesc.csdnblog.view.RefreshableView;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class SearchActivity extends BaseActivity {
-    @InjectView(R.id.main_blogger)
-    RefreshableView mListView;
-
-    private BloggerListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search, ActionBarShowMode.ACTIONBAR_EMBEDED);
+        getActionBarFacade().setBackActionBar();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.actionbar_search));
+        SearchableInfo searchableInfo = searchManager.getSearchableInfo(getComponentName());
+        searchView.setSearchableInfo(searchableInfo);
+        return super.onCreateOptionsMenu(menu);
     }
 }
