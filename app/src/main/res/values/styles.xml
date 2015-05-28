@@ -3,7 +3,11 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:actionBarStyle">@style/AppTheme.ActionBar</item>
+        <item name="android:actionBarSize">@dimen/actionbar_height</item>
+        <!--support library-->
         <item name="actionBarStyle">@style/AppTheme.ActionBar</item>
+        <item name="actionBarSize">@dimen/actionbar_height</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="Widget.AppCompat.ActionBar.Solid">

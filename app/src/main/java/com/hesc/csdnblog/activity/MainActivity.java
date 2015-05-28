@@ -81,9 +81,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setListener(){
-        mListView.setOnItemClickListener((parent, view, position, id) ->{
+        mListView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(MainActivity.this, BlogActivity.class);
-            intent.putExtra("blogger", (Blogger)mAdapter.getItem(position));
+            intent.putExtra("blogger", (Blogger) mAdapter.getItem(position));
             startActivity(intent);
         });
     }
@@ -106,7 +106,7 @@ public class MainActivity extends BaseActivity {
      * actionbar右边按钮点击事件回调
      */
     private View.OnClickListener mRightClickListener = v->{
-
+        startActivity(new Intent(this, SearchActivity.class));
     };
 
     /**
@@ -123,7 +123,7 @@ public class MainActivity extends BaseActivity {
                         blogIdView.setError("博客ID不能为空！");
                         return false;
                     }
-
+                    //从网络加载指定博客ID的博客信息
                     mAdapter.loadFromNet(blogID);
                     return true;
                 });
