@@ -3,5 +3,5 @@
     android:label="@string/actionbar_search_hint"
     android:hint="@string/actionbar_search_hint"
     android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
-    android:searchMode="queryRewriteFromText">
+    android:imeOptions="actionSearch">
 </searchable>

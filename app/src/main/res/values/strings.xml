@@ -16,7 +16,7 @@
     <string name="title_activity_article">博客文章</string>
     <string name="title_activity_search">搜索</string>
 
-    <string name="actionbar_search_hint">搜索</string>
+    <string name="actionbar_search_hint">搜索222</string>
 
     <string name="menu_add_blogger">添加博客</string>
     <string name="menu_settings">设置</string>
@@ -42,5 +42,6 @@
         <item>bbld_</item>
         <item>lyq8479</item>
         <item>asmcvc</item>
+        <item>leehong2005</item>
     </string-array>
 </resources>

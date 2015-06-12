@@ -33,11 +33,12 @@
         </activity>
         <activity android:name=".activity.SearchActivity"
             android:label="@string/title_activity_search">
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:resource="@xml/searchable"
-                android:name="android.app.searchable" />
         </activity>
     </application>
 
