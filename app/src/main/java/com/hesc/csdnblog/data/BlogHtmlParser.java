@@ -3,10 +3,12 @@ package com.hesc.csdnblog.data;
 import android.text.TextUtils;
 
 import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +18,6 @@ import java.util.List;
 class BlogHtmlParser {
     //博客的基地址
     private static final String BLOG_BASEURL="http://blog.csdn.net/";
-    private static final String BLOG_BASEURL_MOBILE="http://m.blog.csdn.net/blog/";
 
     /**
      * 获取博客地址
@@ -27,14 +28,6 @@ class BlogHtmlParser {
         return BLOG_BASEURL + blogID + "/";
     }
 
-    /**
-     * 获取移动版博客地址
-     * @param blogID
-     * @return
-     */
-    public static String getMobileBlogUrl(String blogID){
-        return BLOG_BASEURL_MOBILE + blogID + "/";
-    }
     /**
      * 校验文档的合法性
      */
@@ -69,11 +62,17 @@ class BlogHtmlParser {
             throw new Exception("博客ID不能为空！");
         }
 
-        Document document = Jsoup.connect(getBlogUrl(blogID)).get();
+        Document document = connect(getBlogUrl(blogID));
         //校验文档的合法性
         checkDocValidate(document);
 
         return document;
+    }
+
+    private static Document connect(String url) throws IOException {
+        //不能使用默认的user-agent，这样就会使服务器认为是mobile的网络请求，从而返回m.blog.csdn.net的内容，从而导致错误
+        String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11";
+        return HttpConnection.connect(url).userAgent(userAgent).get();
     }
 
     /**
@@ -97,7 +96,7 @@ class BlogHtmlParser {
 
         for(int pageIndex = 0; pageIndex<pageCount; pageIndex++) {
             String pageUrl = getArticlePageUrl(blogID, pageIndex);
-            Document articleDoc = Jsoup.connect(pageUrl).get();
+            Document articleDoc = connect(pageUrl);
             Elements articleEles = articleDoc.getElementById("article_list").children();
 
             int count = articleEles.size();
@@ -174,7 +173,7 @@ class BlogHtmlParser {
         //文章标题
         article.title = titleEle.select("a[href]").first().text();
         //文章地址
-        article.url = getArticleUrl(blogID, getArticleID(titleEle.select("a[href]").attr("href")));
+        article.url = BLOG_BASEURL + titleEle.select("a[href]").attr("href");
         //概要
         article.summary = element.getElementsByClass("article_description").first().text();
 
@@ -189,18 +188,6 @@ class BlogHtmlParser {
         article.category = getArticleCategory(titleEle);
 
         return article;
-    }
-
-    /**
-     * 获取博客文章ID
-     * @param href
-     * @return
-     */
-    private static String getArticleID(String href){
-        //地址一般为"/XXXX/article/details/26365913"，需要把26365913截取出来
-        int index = href.lastIndexOf("/");
-        return href.substring(index+1, href.length());
-
     }
 
     private static int getArticleCategory(Element titleEle) {
@@ -226,16 +213,6 @@ class BlogHtmlParser {
     }
 
     /**
-     * 获取博客文章ID对应的博客文章地址
-     * @param blogID
-     * @param articleID
-     * @return
-     */
-    private static String getArticleUrl(String blogID, String articleID){
-        return getMobileBlogUrl(blogID) + articleID;
-    }
-
-    /**
      * 对博客文章进行裁剪
      * @param articleUrl
      * @return
@@ -244,22 +221,29 @@ class BlogHtmlParser {
     public static String clipArticle(String articleUrl) throws Exception {
         Document document = Jsoup.connect(articleUrl).get();
         //去掉博客文章头
-        document.getElementById("header").remove();
-        //去掉导航
-        document.getElementById("nav").remove();
-
-        Element topElement = document.getElementById("top");
+        document.getElementsByClass("blog_top_wrap").first().remove();
+        document.getElementsByClass("blog_article_t").first().remove();
         //去掉栏目标题
-        topElement.getElementsByClass("avatar").first().remove();
+        document.getElementsByClass("article_t").first().remove();
         //去掉上下页
-        topElement.getElementsByClass("next_page").first().remove();
-        //去掉[请先登录后，再发表评论！]
-        topElement.select("div.view").first().remove();
+        document.getElementsByClass("prev_next").first().remove();
         //去掉评论
-        topElement.select("div.comment_sub").first().remove();
+        document.getElementsByClass("no_comment").first().remove();
+        document.getElementsByClass("blog_comment").first().remove();
+        document.getElementById("tags").remove();
+        document.getElementsByClass("my_hot_article").first().remove();
+        document.getElementsByClass("my_hot_article").first().remove();
+
         //去掉底部
-        document.getElementById("ding1").remove();
-        document.getElementById("footer").remove();
+        document.getElementsByClass("leftNav").first().remove();
+        document.getElementsByClass("blog_handle").first().remove();
+        document.getElementsByClass("backToTop").first().remove();
+        document.getElementsByClass("popup_cover").first().remove();
+        document.getElementsByClass("sharePopup_box").first().remove();
+        document.getElementsByClass("ad_box").first().remove();
+        document.getElementsByClass("backToTop").first().remove();
+        document.getElementsByClass("blog_footer").first().remove();
+
         return document.outerHtml();
     }
 }
